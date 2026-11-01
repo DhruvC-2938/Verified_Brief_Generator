@@ -26,7 +26,7 @@ export function getGeminiClient(): GoogleGenAI {
   return new GoogleGenAI({
     apiKey,
     httpOptions: {
-      timeout: 35000,
+      timeout: 90000,
       headers: {
         'User-Agent': 'academic-brief-generator',
       },
@@ -214,8 +214,14 @@ async function generateWithRetry(
         err?.message?.includes('quota');
       const isUnavailable =
         err?.status === 503 ||
+        err?.status === 504 ||
+        err?.code === 504 ||
+        err?.error?.code === 504 ||
         err?.message?.includes('503') ||
+        err?.message?.includes('504') ||
         err?.message?.includes('high demand') ||
+        err?.message?.includes('timed out') ||
+        err?.message?.includes('timeout') ||
         err?.message?.includes('UNAVAILABLE') ||
         err?.message?.includes('DEADLINE_EXCEEDED');
 
@@ -456,6 +462,10 @@ Be factual, objective, and cite specific findings, numbers, dates, and organizat
     });
   }
 
+  const conciseEvidence = searchEvidenceText.length > 10000
+    ? searchEvidenceText.slice(0, 10000) + '\n[Evidence condensed for synthesis efficiency]'
+    : searchEvidenceText;
+
   const synthesisPrompt = `
 You are a rigorous academic peer reviewer and research author.
 You must synthesize an academic brief based EXCLUSIVELY on the retrieved web evidence below.
@@ -465,7 +475,7 @@ ACADEMIC LEVEL: ${req.academicLevel}
 BRIEF LENGTH: ${req.briefLength}
 
 RETRIEVED WEB EVIDENCE:
-${searchEvidenceText}
+${conciseEvidence}
 
 SOURCES RETRIEVED:
 ${initialSources.map((s) => `[${s.id}] domain: ${s.domain} (URL: ${s.url})`).join('\n')}
