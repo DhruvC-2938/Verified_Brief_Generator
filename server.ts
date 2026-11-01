@@ -176,6 +176,12 @@ app.get('/api/stream', async (req: Request, res: Response) => {
   const preferredSourceTypes = (req.query.preferredSourceTypes as any) || 'all';
   const customKey = (req.headers['x-gemini-api-key'] as string) || (req.query.apiKey as string);
 
+  if (customKey && customKey.trim()) {
+    console.log(`[Stream] Received custom API key: ${customKey.slice(0, 6)}...${customKey.slice(-4)}`);
+  } else {
+    console.log('[Stream] Using default server environment GEMINI_API_KEY');
+  }
+
   if (!topic || topic.trim().length < 3) {
     res.status(400).json({ error: 'A valid research topic is required.' });
     return;

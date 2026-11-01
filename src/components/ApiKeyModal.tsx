@@ -34,12 +34,16 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
       localStorage.setItem('custom_gemini_api_key', trimmed);
       setIsSaved(true);
       onKeyChange?.(true);
+      setTestResult({ success: true, message: 'Custom API key saved! Ready for live research.' });
+      setTimeout(() => {
+        onClose();
+      }, 700);
     } else {
       localStorage.removeItem('custom_gemini_api_key');
       setIsSaved(false);
       onKeyChange?.(false);
+      setTestResult({ success: true, message: 'Custom API key removed.' });
     }
-    setTestResult({ success: true, message: 'Custom API key saved for this browser!' });
   };
 
   const handleClear = () => {
@@ -107,7 +111,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
         {/* Content */}
         <div className="p-5 space-y-4 text-xs">
           {/* Status Alert */}
-          <div className="p-3 rounded-xl bg-[#f9fafb] border border-[#e5e7eb] space-y-1.5">
+          <div className="p-3.5 rounded-xl bg-[#f9fafb] border border-[#e5e7eb] space-y-2">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-[#111827] flex items-center gap-1.5 text-xs">
                 <Shield className="w-3.5 h-3.5 text-[#20808d]" />
@@ -123,9 +127,14 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
                 </span>
               )}
             </div>
-            <p className="text-[#6b7280] text-[11px] leading-relaxed">
-              Google AI Studio free-tier projects have a limit of 20 requests per day. When your daily quota is reached, you can paste a fresh free key here to continue immediately without server redeployment.
-            </p>
+            <div className="text-[#6b7280] text-[11px] leading-relaxed space-y-1">
+              <p>
+                <strong className="text-[#111827]">Why creating another key in the same project still fails:</strong> Google AI Studio enforces its 20 requests/day limit at the <strong className="text-[#111827]">Google Cloud Project</strong> level. Generating 2 or 3 keys in the same project shares the same exhausted quota.
+              </p>
+              <p className="text-[#047857] font-medium bg-[#ecfdf5] p-2 rounded-lg border border-[#a7f3d0]">
+                👉 In Google AI Studio, choose <strong>"Create API key in NEW project"</strong> or sign in with another Google account to get a brand new 20 requests/day pool.
+              </p>
+            </div>
           </div>
 
           {/* Key Input */}
@@ -218,3 +227,4 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
     </div>
   );
 };
+
