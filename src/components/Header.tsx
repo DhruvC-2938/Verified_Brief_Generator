@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Database, Sparkles, BookOpen, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Search, Database, Sparkles, BookOpen, ExternalLink, ShieldCheck, PanelLeft } from 'lucide-react';
 
 interface HeaderProps {
   onReset: () => void;
@@ -20,8 +20,16 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-30 bg-[#fbfbfb]/90 backdrop-blur-md border-b border-[#e5e7eb] transition-all">
       <div className="w-full px-4 sm:px-6">
         <div className="flex items-center justify-between h-14">
-          {/* Left: Breadcrumb / Topic title */}
-          <div className="flex items-center gap-3 min-w-0">
+          {/* Left: Sidebar Toggle + Breadcrumb / Topic title */}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <button
+              onClick={onToggleSidebar}
+              className="p-1.5 text-[#6b7280] hover:text-[#111827] hover:bg-[#f3f4f6] rounded-lg transition-colors cursor-pointer shrink-0"
+              title={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <PanelLeft className="w-4.5 h-4.5" />
+            </button>
+
             <button
               onClick={onReset}
               className="text-xs font-semibold text-[#111827] hover:text-[#20808d] transition-colors truncate hidden sm:inline-block cursor-pointer"

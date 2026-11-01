@@ -78,13 +78,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {!isCollapsed && (
             <button
               onClick={onToggleCollapse}
-              className="p-1 text-[#9ca3af] hover:text-[#111827] hover:bg-[#f3f4f6] rounded-md transition-colors"
+              className="p-1 text-[#9ca3af] hover:text-[#111827] hover:bg-[#f3f4f6] rounded-md transition-colors cursor-pointer"
               title="Collapse sidebar"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
           )}
         </div>
+
+        {isCollapsed && (
+          <div className="flex justify-center">
+            <button
+              onClick={onToggleCollapse}
+              className="p-1.5 text-[#6b7280] hover:text-[#111827] hover:bg-[#f3f4f6] rounded-lg transition-colors cursor-pointer"
+              title="Expand sidebar"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
 
         {/* New Research Pill Button (Iconic Perplexity Button) */}
         <div>

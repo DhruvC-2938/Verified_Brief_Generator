@@ -260,95 +260,25 @@ export default function App() {
 
           {/* Results View (Perplexity Light Layout) */}
           {brief && !isLoading && (
-            <section className="space-y-6 animate-in fade-in duration-300">
-              {/* Dossier Topic Bar */}
-              {!showQueryForm && (
-                <div className="space-y-3">
-                  {/* Demo Data Banner when reviewing sample briefs */}
-                  {brief.isDemoSample && (
-                    <div className="p-3.5 rounded-xl bg-[#fffbeb] border border-[#fef3c7] flex items-center justify-between gap-3 text-xs text-[#92400e]">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold uppercase tracking-wider bg-[#f59e0b] text-white px-2 py-0.5 rounded text-[10px]">
-                          DEMO DATA
-                        </span>
-                        <span>
-                          Viewing pre-computed benchmark data. This is stored demonstration data, not a live web search.
-                        </span>
-                      </div>
-                      <button
-                        onClick={handleReset}
-                        className="text-xs font-semibold underline hover:text-[#78350f] shrink-0 cursor-pointer"
-                      >
-                        Run Live Research
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Insufficient Evidence Warning Banner */}
-                  {brief.insufficientEvidence && (
-                    <div className="p-4 rounded-xl bg-[#fef2f2] border border-[#fecaca] flex items-center gap-3 text-xs sm:text-sm text-[#b91c1c]">
-                      <AlertCircle className="w-5 h-5 text-[#ef4444] shrink-0" />
-                      <div>
-                        <span className="font-bold block">Insufficient Verifiable Literature Found</span>
-                        <span>{brief.insufficientEvidenceMessage || 'Zero usable authoritative sources were returned by search indices.'}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action Bar */}
-                  <div className="bg-white p-4 rounded-2xl border border-[#e5e7eb] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#e6f4f5] text-[#20808d] flex items-center justify-center shrink-0 border border-[#bce2e6]">
-                        <BookOpen className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-[#6b7280]">
-                            Active Research Topic
-                          </span>
-                          {brief.isDemoSample ? (
-                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#fef3c7] text-[#92400e] font-semibold border border-[#fde68a]">
-                              DEMO SAMPLE
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#ecfdf5] text-[#047857] font-semibold border border-[#a7f3d0]">
-                              LIVE GROUNDED
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-sm sm:text-base font-semibold text-[#111827] line-clamp-1">
-                          {brief.topic}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => setShowQueryForm(true)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#374151] hover:text-[#111827] bg-[#f9fafb] hover:bg-[#f3f4f6] border border-[#e5e7eb] rounded-lg transition-colors self-start sm:self-auto cursor-pointer"
-                    >
-                      <Search className="w-3.5 h-3.5 text-[#6b7280]" />
-                      <span>New Inquiry</span>
-                    </button>
+            <section className="space-y-5 animate-in fade-in duration-300">
+              {/* Insufficient Evidence Warning Banner (Only if search failed) */}
+              {brief.insufficientEvidence && (
+                <div className="p-4 rounded-xl bg-[#fef2f2] border border-[#fecaca] flex items-center gap-3 text-xs sm:text-sm text-[#b91c1c]">
+                  <AlertCircle className="w-5 h-5 text-[#ef4444] shrink-0" />
+                  <div>
+                    <span className="font-bold block">Insufficient Verifiable Literature Found</span>
+                    <span>{brief.insufficientEvidenceMessage || 'Zero usable authoritative sources were returned by search indices.'}</span>
                   </div>
                 </div>
               )}
 
-              {/* Verification Rigor & Status Chips Bar */}
-              <MetricsBar
-                metrics={brief.metrics}
-                onFilterStatus={(status) => {
-                  setActiveStatusFilter(status);
-                  setActiveTab('claims');
-                }}
-                activeStatusFilter={activeStatusFilter}
-              />
-
-              {/* Perplexity Styled Tabs Bar */}
-              <div className="border-b border-[#e5e7eb] bg-white rounded-2xl p-1.5 shadow-2xs">
-                <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto text-xs">
+              {/* Clean Perplexity Minimal Navigation & Grounding Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e5e7eb]">
+                {/* Clean Flat Tabs */}
+                <nav className="flex items-center gap-1.5 overflow-x-auto text-xs">
                   <button
                     onClick={() => setActiveTab('brief')}
-                    className={`py-2 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+                    className={`py-1.5 px-3 rounded-lg font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
                       activeTab === 'brief'
                         ? 'bg-[#20808d] text-white font-semibold shadow-xs'
                         : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
@@ -360,7 +290,7 @@ export default function App() {
 
                   <button
                     onClick={() => setActiveTab('claims')}
-                    className={`py-2 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+                    className={`py-1.5 px-3 rounded-lg font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
                       activeTab === 'claims'
                         ? 'bg-[#20808d] text-white font-semibold shadow-xs'
                         : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
@@ -381,7 +311,7 @@ export default function App() {
 
                   <button
                     onClick={() => setActiveTab('sources')}
-                    className={`py-2 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+                    className={`py-1.5 px-3 rounded-lg font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
                       activeTab === 'sources'
                         ? 'bg-[#20808d] text-white font-semibold shadow-xs'
                         : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
@@ -400,6 +330,33 @@ export default function App() {
                     </span>
                   </button>
                 </nav>
+
+                {/* Status Badges & Quick Action */}
+                <div className="flex items-center gap-2 self-start sm:self-auto text-xs">
+                  {brief.isDemoSample ? (
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#fffbeb] text-[#92400e] border border-[#fde68a] font-semibold">
+                      DEMO BENCHMARK DATA
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#ecfdf5] text-[#047857] border border-[#a7f3d0] font-semibold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse" />
+                      LIVE GROUNDED
+                    </span>
+                  )}
+
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#e6f4f5] text-[#20808d] border border-[#bce2e6] font-semibold">
+                    {brief.metrics.verificationRigorScore}% Rigor
+                  </span>
+
+                  <button
+                    onClick={() => setShowQueryForm(true)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6] border border-[#e5e7eb] rounded-lg transition-colors cursor-pointer ml-1"
+                    title="Start a new search"
+                  >
+                    <Search className="w-3.5 h-3.5 text-[#6b7280]" />
+                    <span className="hidden md:inline">New Search</span>
+                  </button>
+                </div>
               </div>
 
               {/* Active Tab Panel */}
@@ -413,13 +370,22 @@ export default function App() {
                 )}
 
                 {activeTab === 'claims' && (
-                  <ClaimsTable
-                    claims={brief.claims}
-                    sources={brief.sources}
-                    onOpenSourceModal={(src) => setSelectedSourceModal(src)}
-                    selectedFilter={activeStatusFilter}
-                    onFilterChange={(newFilter) => setActiveStatusFilter(newFilter)}
-                  />
+                  <div className="space-y-4">
+                    <MetricsBar
+                      metrics={brief.metrics}
+                      onFilterStatus={(status) => {
+                        setActiveStatusFilter(status);
+                      }}
+                      activeStatusFilter={activeStatusFilter}
+                    />
+                    <ClaimsTable
+                      claims={brief.claims}
+                      sources={brief.sources}
+                      onOpenSourceModal={(src) => setSelectedSourceModal(src)}
+                      selectedFilter={activeStatusFilter}
+                      onFilterChange={(newFilter) => setActiveStatusFilter(newFilter)}
+                    />
+                  </div>
                 )}
 
                 {activeTab === 'sources' && (

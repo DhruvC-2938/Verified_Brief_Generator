@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { executeAcademicWorkflow } from './server/geminiWorkflow.ts';
 import { SAMPLE_BRIEFS } from './server/sampleData.ts';
@@ -37,6 +38,26 @@ app.get('/api/evaluations', (req: Request, res: Response) => {
     res.json(records);
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to retrieve evaluations.' });
+  }
+});
+
+// Endpoint to export evaluations as a clean CSV download
+app.get('/api/evaluations/csv', (req: Request, res: Response) => {
+  try {
+    const csvPath = path.join(__dirname, 'server', 'data', 'evaluations.csv');
+    if (!fs.existsSync(csvPath)) {
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', 'attachment; filename="evaluations.csv"');
+      return res.send('\uFEFFid,timestamp,topic,academicLevel,briefLength,title,totalSources,totalClaims,supportedClaims,verificationRigorScore,averageCredibilityScore,automatedExportTriggered\r\n');
+    }
+    const content = fs.readFileSync(csvPath, 'utf-8');
+    // Ensure UTF-8 BOM so Microsoft Excel and other spreadsheet apps render unicode characters cleanly
+    const payload = content.startsWith('\uFEFF') ? content : '\uFEFF' + content;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="evaluations.csv"');
+    return res.send(payload);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve evaluations CSV.' });
   }
 });
 

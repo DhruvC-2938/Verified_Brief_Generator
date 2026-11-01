@@ -47,6 +47,57 @@ export const EvaluationsModal: React.FC<EvaluationsModalProps> = ({ isOpen, onCl
     }
   }, [isOpen]);
 
+  const handleExportCSV = () => {
+    if (records.length === 0) return;
+    const headers = [
+      'ID',
+      'Timestamp',
+      'Topic',
+      'Academic Level',
+      'Brief Length',
+      'Title',
+      'Total Sources',
+      'Total Claims',
+      'Supported Claims',
+      'Verification Rigor (%)',
+      'Average Credibility (%)',
+      'Automated Export Triggered',
+    ];
+
+    const escapeCsv = (val: any) => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const rows = records.map((r) => [
+      escapeCsv(r.id),
+      escapeCsv(new Date(r.timestamp).toISOString()),
+      escapeCsv(r.topic),
+      escapeCsv(r.academicLevel),
+      escapeCsv(r.briefLength),
+      escapeCsv(r.title),
+      r.totalSources ?? 0,
+      r.totalClaims ?? 0,
+      r.supportedClaims ?? 0,
+      r.verificationRigorScore ?? 0,
+      r.averageCredibilityScore ?? 0,
+      r.automatedExportTriggered ? 'TRUE' : 'FALSE',
+    ]);
+
+    // Prepend UTF-8 BOM so Microsoft Excel, Apple Numbers, and Google Sheets parse cleanly
+    const csvContent = '\uFEFF' + [headers.map(escapeCsv).join(','), ...rows.map((row) => row.join(','))].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `academic_evaluations_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -104,14 +155,14 @@ export const EvaluationsModal: React.FC<EvaluationsModalProps> = ({ isOpen, onCl
           </div>
 
           <div className="flex items-center gap-3 text-[11px]">
-            <a
-              href="/api/evaluations/csv"
-              download="evaluations.csv"
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-[#f3f4f6] text-[#20808d] border border-[#e5e7eb] rounded-lg font-medium transition-colors cursor-pointer shadow-2xs"
+            <button
+              onClick={handleExportCSV}
+              disabled={records.length === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-[#f3f4f6] text-[#20808d] border border-[#e5e7eb] rounded-lg font-medium transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
             >
               <Download className="w-3 h-3" />
               <span>Export CSV Spreadsheet</span>
-            </a>
+            </button>
           </div>
         </div>
 
