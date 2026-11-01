@@ -10,10 +10,8 @@ import {
 } from '../src/types/index.ts';
 
 const FALLBACK_MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite',
-  'gemini-flash-lite-latest',
+  process.env.GEMINI_MODEL || 'gemini-2.5-flash',
   'gemini-2.5-flash',
-  'gemini-flash-latest',
 ];
 
 const WORKFLOW_MODEL = FALLBACK_MODELS[0];

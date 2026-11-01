@@ -34,7 +34,8 @@ export const SourcesList: React.FC<SourcesListProps> = ({
   const [cardFormats, setCardFormats] = useState<Record<string, CitationFormat>>({});
 
   const formatCitation = (src: SourceItem, format: CitationFormat): string => {
-    const cleanUrl = src.url.startsWith('http') ? src.url : `https://${src.domain}`;
+    const isRedirect = src.url.includes('vertexaisearch.cloud.google.com') || !src.url.startsWith('http');
+    const cleanUrl = isRedirect ? `https://${src.domain}` : src.url;
     const yearMatch = src.publishedDate.match(/\d{4}/);
     const year = yearMatch ? yearMatch[0] : null;
     const isDateListed = src.publishedDate && src.publishedDate !== 'Unknown';

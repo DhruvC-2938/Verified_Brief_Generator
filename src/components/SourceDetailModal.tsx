@@ -17,10 +17,11 @@ export const SourceDetailModal: React.FC<SourceDetailModalProps> = ({
   if (!source) return null;
 
   const associatedClaims = claims.filter((c) => c.sourceIds.includes(source.id));
-  const cleanUrl = source.url.startsWith('http') ? source.url : `https://${source.domain}`;
+  const isRedirectUrl = source.url.includes('vertexaisearch.cloud.google.com') || !source.url.startsWith('http');
+  const citationUrl = isRedirectUrl ? `https://${source.domain}` : source.url;
   const yearMatch = source.publishedDate.match(/\d{4}/);
   const year = yearMatch ? yearMatch[0] : null;
-  const apaCitation = `${source.publisher}. (${year || 'n.d.'}). ${source.title}. Retrieved from ${cleanUrl}`;
+  const apaCitation = `${source.publisher}. (${year || 'n.d.'}). ${source.title}. Retrieved from ${citationUrl}`;
 
   const handleCopyCitation = async () => {
     try {
@@ -40,7 +41,7 @@ export const SourceDetailModal: React.FC<SourceDetailModalProps> = ({
       >
         {/* Modal Header */}
         <div className="p-5 sm:p-6 border-b border-[#f3f4f6] flex items-start justify-between gap-4 sticky top-0 bg-white/95 backdrop-blur-md z-10">
-          <div className="space-y-1.5">
+          <div className="space-y-1.5 min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] border border-[#bce2e6] px-2.5 py-0.5 rounded-md">
                 [{source.id}]
@@ -53,14 +54,15 @@ export const SourceDetailModal: React.FC<SourceDetailModalProps> = ({
                 <span>{source.credibilityScore}% Rigor</span>
               </span>
             </div>
-            <h3 className="text-lg font-semibold text-[#111827] leading-snug">
+            <h3 className="text-lg font-semibold text-[#111827] leading-snug break-words [overflow-wrap:anywhere]">
               {source.title}
             </h3>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-[#9ca3af] hover:text-[#111827] hover:bg-[#f3f4f6] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[#9ca3af] hover:text-[#111827] hover:bg-[#f3f4f6] rounded-lg transition-colors cursor-pointer shrink-0"
+            aria-label="Close source details"
           >
             <X className="w-5 h-5" />
           </button>
@@ -70,23 +72,29 @@ export const SourceDetailModal: React.FC<SourceDetailModalProps> = ({
         <div className="p-5 sm:p-6 space-y-5 text-xs">
           {/* Metadata Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 bg-[#f9fafb] rounded-xl border border-[#e5e7eb]">
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] uppercase text-[#6b7280] block font-semibold">Publisher</span>
-              <span className="font-semibold text-[#111827] text-xs mt-0.5 block">{source.publisher}</span>
+              <span className="font-semibold text-[#111827] text-xs mt-0.5 block truncate" title={source.publisher}>
+                {source.publisher}
+              </span>
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] uppercase text-[#6b7280] block font-semibold">Domain</span>
-              <span className="font-mono text-[#111827] text-xs mt-0.5 block">{source.domain}</span>
+              <span className="font-mono text-[#111827] text-xs mt-0.5 block truncate" title={source.domain}>
+                {source.domain}
+              </span>
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] uppercase text-[#6b7280] block font-semibold">Publication Date</span>
-              <span className="font-medium text-[#111827] text-xs mt-0.5 block">
+              <span className="font-medium text-[#111827] text-xs mt-0.5 block truncate">
                 {source.publishedDate && source.publishedDate !== 'Unknown' ? source.publishedDate : 'Unlisted (n.d.)'}
               </span>
             </div>
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] uppercase text-[#6b7280] block font-semibold">Authority Tier</span>
-              <span className="font-medium text-[#20808d] text-xs mt-0.5 block">{source.credibilityTier}</span>
+              <span className="font-medium text-[#20808d] text-xs mt-0.5 block truncate">
+                {source.credibilityTier}
+              </span>
             </div>
           </div>
 
@@ -97,42 +105,16 @@ export const SourceDetailModal: React.FC<SourceDetailModalProps> = ({
                 <Quote className="w-3.5 h-3.5 text-[#20808d]" />
                 <span>Extracted Empirical Excerpt</span>
               </div>
-              <div className="p-3.5 bg-[#f9fafb] rounded-xl border-l-2 border-[#20808d] border border-[#e5e7eb] text-xs sm:text-sm italic text-[#374151] leading-relaxed">
+              <div className="p-3.5 bg-[#f9fafb] rounded-xl border-l-2 border-[#20808d] border border-[#e5e7eb] text-xs sm:text-sm italic text-[#374151] leading-relaxed break-words [overflow-wrap:anywhere]">
                 "{source.excerpt}"
               </div>
-              <p className="text-[11px] text-[#6b7280] italic">
-                {source.credibilityNotes}
-              </p>
+              {source.credibilityNotes && (
+                <p className="text-[11px] text-[#6b7280] italic break-words [overflow-wrap:anywhere]">
+                  {source.credibilityNotes}
+                </p>
+              )}
             </div>
           )}
-
-          {/* Scholarly APA Reference */}
-          <div className="p-3.5 bg-[#f9fafb] rounded-xl border border-[#e5e7eb] space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                APA 7th Reference
-              </span>
-              <button
-                onClick={handleCopyCitation}
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#111827] bg-white border border-[#e5e7eb] rounded-md hover:bg-[#f3f4f6] transition-colors cursor-pointer"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-3 h-3 text-[#10b981]" />
-                    <span className="text-[#10b981]">Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3 h-3 text-[#6b7280]" />
-                    <span>Copy Citation</span>
-                  </>
-                )}
-              </button>
-            </div>
-            <p className="text-xs text-[#374151] leading-relaxed">
-              {apaCitation}
-            </p>
-          </div>
 
           {/* Associated Claims */}
           {associatedClaims.length > 0 && (
@@ -152,7 +134,7 @@ export const SourceDetailModal: React.FC<SourceDetailModalProps> = ({
                         {claim.status.replace('_', ' ')}
                       </span>
                     </div>
-                    <p className="text-[#111827] text-xs leading-relaxed">
+                    <p className="text-[#111827] text-xs leading-relaxed break-words [overflow-wrap:anywhere]">
                       "{claim.claimText}"
                     </p>
                   </div>
@@ -161,8 +143,26 @@ export const SourceDetailModal: React.FC<SourceDetailModalProps> = ({
             </div>
           )}
 
-          {/* Live Link Button */}
-          <div className="pt-3 border-t border-[#f3f4f6] flex justify-end">
+          {/* Action Footer */}
+          <div className="pt-3 border-t border-[#f3f4f6] flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={handleCopyCitation}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-[#374151] bg-[#f9fafb] hover:bg-[#f3f4f6] border border-[#e5e7eb] rounded-xl transition-colors cursor-pointer shadow-2xs"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-[#10b981]" />
+                  <span className="text-[#10b981] font-semibold">Citation Copied</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-[#6b7280]" />
+                  <span>Copy Citation</span>
+                </>
+              )}
+            </button>
+
             <a
               href={source.url}
               target="_blank"
