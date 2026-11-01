@@ -67,39 +67,91 @@
 }
 
 @media print {
-  body {
-    background-color: #ffffff !important;
-    color: #000000 !important;
+  @page {
+    size: A4 portrait;
+    margin: 15mm 15mm 15mm 15mm;
   }
-  header, footer, nav, button, select, input, aside {
-    display: none !important;
-  }
-  article {
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    max-width: 100% !important;
-  }
-  .print\:hidden {
-    display: none !important;
-  }
-}
 
-@media print {
-  body {
+  html, body {
+    background: #ffffff !important;
     background-color: #ffffff !important;
-    color: #000000 !important;
+    color: #111827 !important;
+    font-size: 10.5pt !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
-  header, footer, nav, button, select, input {
+
+  /* Completely eliminate sidebars, headers, action buttons, forms, and navigation in print */
+  aside,
+  header,
+  footer,
+  nav,
+  button,
+  select,
+  input,
+  textarea,
+  form,
+  .print-hidden,
+  .print\:hidden {
     display: none !important;
+    visibility: hidden !important;
   }
+
+  /* Reset all layout shifts so the document occupies 100% of printable page width */
+  div,
+  main,
+  section {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
   article {
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
     max-width: 100% !important;
+    background: transparent !important;
   }
-  .print\:hidden {
-    display: none !important;
+
+  /* Avoid page breaks right after headers */
+  h1, h2, h3, h4 {
+    page-break-after: avoid;
+    break-after: avoid;
+    color: #0f172a !important;
+  }
+
+  h1 {
+    font-size: 18pt !important;
+    line-height: 1.25 !important;
+    margin-bottom: 6pt !important;
+  }
+
+  h2 {
+    font-size: 12pt !important;
+    margin-top: 12pt !important;
+    margin-bottom: 4pt !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    padding-bottom: 2pt !important;
+  }
+
+  p, li {
+    font-size: 9.5pt !important;
+    line-height: 1.5 !important;
+    color: #1f2937 !important;
+  }
+
+  section {
+    page-break-inside: auto;
+    break-inside: auto;
+    margin-bottom: 10pt !important;
   }
 }

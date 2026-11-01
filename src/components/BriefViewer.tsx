@@ -162,44 +162,52 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
   };
 
   return (
-    <div className="space-y-7 font-sans">
+    <div className="space-y-7 font-sans print:space-y-3">
+      {/* Formal Academic Header visible only when printed/saved as PDF */}
+      <div className="hidden print:block pb-2 mb-3 border-b-2 border-gray-900 text-xs">
+        <div className="flex justify-between items-center font-mono text-[9pt] uppercase tracking-wider text-gray-700">
+          <span className="font-bold">Verified Academic Research Brief</span>
+          <span>Empirical Grounded Literature Synthesis</span>
+        </div>
+      </div>
+
       {/* Top Title & Metadata Row */}
-      <div className="space-y-4 pb-1">
+      <div className="space-y-4 pb-1 print:space-y-2">
         <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748b]">
-          <span className="capitalize px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1e293b] border border-[#e2e8f0] font-semibold text-[11px] shadow-2xs">
+          <span className="capitalize px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1e293b] border border-[#e2e8f0] font-semibold text-[11px] shadow-2xs print:border-none print:p-0 print:text-black">
             {brief.academicLevel} Level
           </span>
           <span className="text-[#cbd5e1]">•</span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <Calendar className="w-3.5 h-3.5 text-[#94a3b8]" />
+          <span className="flex items-center gap-1.5 font-medium print:text-black">
+            <Calendar className="w-3.5 h-3.5 text-[#94a3b8] print:hidden" />
             {formattedDate}
           </span>
           <span className="text-[#cbd5e1]">•</span>
-          <span className="flex items-center gap-1.5 font-medium">
-            <Clock className="w-3.5 h-3.5 text-[#94a3b8]" />
+          <span className="flex items-center gap-1.5 font-medium print:text-black">
+            <Clock className="w-3.5 h-3.5 text-[#94a3b8] print:hidden" />
             ~{readTimeMin} min read ({estimatedWords} words)
           </span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0f172a] tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0f172a] tracking-tight leading-tight print:text-2xl print:leading-snug">
           {brief.title}
         </h1>
 
         {/* Central Research Question Callout */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#f8fafc] via-[#f8fafc] to-[#f1f5f9] border border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-soft">
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#f8fafc] via-[#f8fafc] to-[#f1f5f9] border border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-soft print:bg-transparent print:border-l-4 print:border-l-[#20808d] print:shadow-none print:p-2.5 print:my-2">
           <div className="flex items-start gap-3.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#e6f4f5] text-[#20808d] flex items-center justify-center shrink-0 border border-[#bce2e6] shadow-2xs mt-0.5">
+            <div className="w-8 h-8 rounded-xl bg-[#e6f4f5] text-[#20808d] flex items-center justify-center shrink-0 border border-[#bce2e6] shadow-2xs mt-0.5 print:hidden">
               <BookOpen className="w-4 h-4" />
             </div>
             <div className="space-y-0.5 min-w-0">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748b] block">Central Research Question</span>
-              <p className="text-xs sm:text-sm font-medium text-[#1e293b] leading-relaxed">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748b] block print:text-black">Central Research Question</span>
+              <p className="text-xs sm:text-sm font-medium text-[#1e293b] leading-relaxed print:text-xs">
                 {brief.researchQuestion}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center print:hidden">
             <button
               onClick={handleCopyMarkdown}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#f8fafc] text-[#334155] border border-[#e2e8f0] text-xs font-medium transition-all shadow-2xs hover:shadow-soft cursor-pointer"
@@ -215,14 +223,14 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
               title="Print or Export PDF"
             >
               <Printer className="w-3.5 h-3.5 text-[#64748b]" />
-              <span>Print</span>
+              <span>Print / PDF</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Iconic Perplexity Top Sources Strip */}
-      <div className="space-y-3">
+      {/* Iconic Perplexity Top Sources Strip (Hidden in Print to prevent awkward card cut-off) */}
+      <div className="space-y-3 print:hidden">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-semibold text-[#0f172a]">
             <Globe className="w-4 h-4 text-[#20808d]" />
@@ -282,38 +290,38 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
       </div>
 
       {/* Main Reading Canvas */}
-      <article className="bg-white rounded-3xl border border-[#e2e8f0] shadow-card p-6 sm:p-10 md:p-12 space-y-10 leading-relaxed">
+      <article className="bg-white rounded-3xl border border-[#e2e8f0] shadow-card p-6 sm:p-10 md:p-12 space-y-10 leading-relaxed print:p-0 print:border-none print:shadow-none print:space-y-5">
         {/* 1. Executive Summary */}
         <section className="space-y-3.5">
-          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
-            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">01</span>
-            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9] print:pb-1">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6] print:border-none print:bg-transparent print:text-black print:p-0">01</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a] print:text-base print:font-bold">
               Executive Summary
             </h2>
           </div>
-          <div className="text-sm sm:text-base text-[#334155] leading-relaxed whitespace-pre-line">
+          <div className="text-sm sm:text-base text-[#334155] leading-relaxed whitespace-pre-line print:text-xs">
             {renderTextWithCitations(brief.executiveSummary)}
           </div>
         </section>
 
         {/* 2. Key Findings */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
-            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">02</span>
-            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+        <section className="space-y-4 print:space-y-2">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9] print:pb-1">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6] print:border-none print:bg-transparent print:text-black print:p-0">02</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a] print:text-base print:font-bold">
               Key Empirical Findings
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-3 print:gap-2">
             {brief.keyFindings.map((finding, idx) => (
               <div
                 key={idx}
-                className="p-4 rounded-2xl bg-[#f8fafc] hover:bg-white border border-[#e2e8f0] hover:border-[#20808d]/40 transition-all shadow-2xs hover:shadow-soft flex items-start gap-3.5"
+                className="p-4 rounded-2xl bg-[#f8fafc] hover:bg-white border border-[#e2e8f0] hover:border-[#20808d]/40 transition-all shadow-2xs hover:shadow-soft flex items-start gap-3.5 print:bg-transparent print:p-1.5 print:border-none print:shadow-none"
               >
-                <span className="w-6 h-6 rounded-full bg-[#e6f4f5] text-[#20808d] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-[#bce2e6]">
-                  {idx + 1}
+                <span className="w-6 h-6 rounded-full bg-[#e6f4f5] text-[#20808d] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-[#bce2e6] print:border-none print:bg-transparent print:text-black print:w-auto print:h-auto print:mr-1">
+                  {idx + 1}.
                 </span>
-                <div className="text-xs sm:text-sm text-[#1e293b] leading-relaxed flex-1">
+                <div className="text-xs sm:text-sm text-[#1e293b] leading-relaxed flex-1 print:text-xs">
                   {renderTextWithCitations(finding)}
                 </div>
               </div>
@@ -324,13 +332,13 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
         {/* 3. Introduction & Context */}
         {brief.introduction && (
           <section className="space-y-3.5">
-            <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
-              <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">03</span>
-              <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+            <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9] print:pb-1">
+              <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6] print:border-none print:bg-transparent print:text-black print:p-0">03</span>
+              <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a] print:text-base print:font-bold">
                 Theoretical Background & Context
               </h2>
             </div>
-            <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line">
+            <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line print:text-xs">
               {renderTextWithCitations(brief.introduction)}
             </div>
           </section>
@@ -338,46 +346,66 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
 
         {/* 4. Evidence Analysis */}
         <section className="space-y-3.5">
-          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
-            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">04</span>
-            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9] print:pb-1">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6] print:border-none print:bg-transparent print:text-black print:p-0">04</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a] print:text-base print:font-bold">
               Empirical Evidence Analysis & Mechanism Synthesis
             </h2>
           </div>
-          <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line">
+          <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line print:text-xs">
             {renderTextWithCitations(brief.evidenceAnalysis)}
           </div>
         </section>
 
         {/* 5. Limitations & Conflicting Info */}
         <section className="space-y-3.5">
-          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
-            <span className="font-mono text-xs font-bold text-[#b45309] bg-[#fffbeb] px-2 py-0.5 rounded-md border border-[#fde68a]">05</span>
-            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9] print:pb-1">
+            <span className="font-mono text-xs font-bold text-[#b45309] bg-[#fffbeb] px-2 py-0.5 rounded-md border border-[#fde68a] print:border-none print:bg-transparent print:text-black print:p-0">05</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a] print:text-base print:font-bold">
               Research Limitations & Conflicting Findings
             </h2>
           </div>
-          <div className="p-4.5 rounded-2xl bg-[#fffbeb]/60 border border-[#fde68a] text-xs sm:text-sm text-[#92400e] leading-relaxed whitespace-pre-line">
+          <div className="p-4.5 rounded-2xl bg-[#fffbeb]/60 border border-[#fde68a] text-xs sm:text-sm text-[#92400e] leading-relaxed whitespace-pre-line print:bg-transparent print:border-l-2 print:border-l-amber-600 print:p-2 print:text-black print:text-xs">
             {renderTextWithCitations(brief.limitationsAndConflictingInfo)}
           </div>
         </section>
 
         {/* 6. Conclusion */}
         <section className="space-y-3.5">
-          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
-            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">06</span>
-            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9] print:pb-1">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6] print:border-none print:bg-transparent print:text-black print:p-0">06</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a] print:text-base print:font-bold">
               Scholarly Conclusion & Future Research Directions
             </h2>
           </div>
-          <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line">
+          <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line print:text-xs">
             {renderTextWithCitations(brief.conclusion)}
           </div>
         </section>
+
+        {/* 7. Bibliographic References (Essential for Printed Briefs & PDFs) */}
+        {brief.references && brief.references.length > 0 && (
+          <section className="space-y-3 pt-4 border-t border-[#e2e8f0] print:pt-3">
+            <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9] print:pb-1">
+              <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6] print:border-none print:bg-transparent print:text-black print:p-0">07</span>
+              <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a] print:text-base print:font-bold">
+                Bibliographic References & Attribution
+              </h2>
+            </div>
+            <div className="space-y-2 text-xs sm:text-sm text-[#334155] leading-relaxed print:text-xs">
+              {brief.references.map((ref) => (
+                <div key={ref.id} className="pl-6 -indent-6 print:pl-5 print:-indent-5">
+                  <span className="font-mono font-bold text-[#20808d] print:text-black">[{ref.id}]</span>{' '}
+                  <span className="font-serif">{ref.formattedCitation}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </article>
 
-      {/* Perplexity Follow-Up Q&A Section */}
-      <div className="bg-white rounded-3xl border border-[#e2e8f0] shadow-card p-5 sm:p-7 space-y-4">
+      {/* Perplexity Follow-Up Q&A Section (Hidden in Print) */}
+      <div className="bg-white rounded-3xl border border-[#e2e8f0] shadow-card p-5 sm:p-7 space-y-4 print:hidden">
         <div className="flex items-center gap-2 text-sm font-semibold text-[#111827]">
           <MessageSquare className="w-4 h-4 text-[#20808d]" />
           <span>Ask a Follow-Up Question</span>

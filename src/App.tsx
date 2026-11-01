@@ -205,7 +205,7 @@ export default function App() {
       <div
         className={`flex-1 flex flex-col min-w-0 transition-all duration-200 ease-in-out ${
           isSidebarCollapsed ? 'ml-16' : 'ml-64'
-        }`}
+        } print:ml-0`}
       >
         {/* Top Perplexity Minimal Header */}
         <Header
@@ -217,7 +217,7 @@ export default function App() {
         />
 
         {/* Content Container - Full screen layout occupying entire available width */}
-        <main className="flex-1 w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 space-y-6">
+        <main className="flex-1 w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 space-y-6 print:p-0 print:m-0 print:space-y-4">
           {/* Error Notice */}
           {error && (
             <div className="p-4 rounded-2xl bg-[#fef2f2] border border-[#fecaca] text-xs sm:text-sm text-[#b91c1c] flex items-center justify-between gap-3 animate-in fade-in">
@@ -273,7 +273,7 @@ export default function App() {
               )}
 
               {/* Clean Perplexity Minimal Navigation & Grounding Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e2e8f0]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e2e8f0] print:hidden">
                 {/* Segmented Pill Tabs */}
                 <div className="bg-[#f1f5f9] p-1 rounded-2xl flex items-center gap-1 overflow-x-auto shadow-2xs">
                   <button
