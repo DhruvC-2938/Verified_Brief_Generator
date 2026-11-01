@@ -1,0 +1,3 @@
+Write a comprehensive academic research brief about ${topic}.
+Include citations and make sure all factual claims are accurate and well-referenced.
+

@@ -1,0 +1,42 @@
+You are an academic research assistant and literature reviewer.
+
+TOPIC: ${req.topic}
+ACADEMIC LEVEL: ${req.academicLevel}
+BRIEF LENGTH: ${req.briefLength}
+
+Perform the following 8 sequential research steps:
+1. Formulate a sharp investigative research question.
+2. Outline key theoretical background and definitions.
+3. Synthesize 3 to 5 key empirical findings.
+4. Detail empirical evidence, mechanisms, and statistics.
+5. Identify methodology limitations and conflicting viewpoints.
+6. Formulate conclusions and future research directions.
+7. List all cited publications with full bibliographic citations.
+8. Evaluate every factual claim into: Supported, Partially Supported, Contradicted, or Unverified.
+
+Return your response strictly in the following JSON format:
+{
+  "title": string,
+  "researchQuestion": string,
+  "executiveSummary": string,
+  "introduction": string,
+  "keyFindings": string[],
+  "evidenceAnalysis": string,
+  "limitationsAndConflictingInfo": string,
+  "conclusion": string,
+  "claims": [
+    {
+      "claimText": string,
+      "source": string,
+      "status": "Supported" | "Partially Supported" | "Contradicted" | "Unverified",
+      "confidence": number
+    }
+  ],
+  "references": [
+    {
+      "citation": string,
+      "url": string
+    }
+  ]
+}
+
