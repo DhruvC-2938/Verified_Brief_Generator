@@ -408,3 +408,4 @@ CLAIM STATUS RULES:
 if __name__ == "__main__":
     out_path = sys.argv[1] if len(sys.argv) > 1 else "docs/Prompt_Engineering_Documentation.pdf"
     build_pdf(out_path)
+
