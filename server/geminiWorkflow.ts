@@ -10,12 +10,14 @@ import {
 } from '../src/types/index.ts';
 
 const FALLBACK_MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  process.env.GEMINI_MODEL || 'gemini-3.8-flash',
   'gemini-2.5-flash',
+  'gemini-flash-latest',
 ];
 
 const SYNTHESIS_FALLBACK_MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  process.env.GEMINI_MODEL || 'gemini-3.8-flash',
+  'gemini-2.5-flash',
   'gemini-flash-lite-latest',
   'gemini-3.5-flash',
   'gemini-3-flash-preview',
@@ -275,18 +277,27 @@ async function generateWithRetry(
         err?.message?.includes('timeout') ||
         err?.message?.includes('UNAVAILABLE') ||
         err?.message?.includes('DEADLINE_EXCEEDED');
+      const isDeprecated =
+        err?.status === 404 ||
+        err?.message?.includes('no longer available') ||
+        err?.message?.includes('NOT_FOUND') ||
+        err?.message?.includes('is not enabled');
 
-      if ((isRateLimit || isUnavailable) && attempt < maxRetries) {
-        const waitSec = isRateLimit ? attempt * 2 : 2;
+      if ((isRateLimit || isUnavailable || isDeprecated) && attempt < maxRetries) {
+        const waitSec = isDeprecated ? 0 : isRateLimit ? attempt * 2 : 2;
         const nextModel = modelsList[Math.min(attempt, modelsList.length - 1)];
         if (onNotice) {
           onNotice(
-            isUnavailable
+            isDeprecated
+              ? `Cascading to supported model (${nextModel})...`
+              : isUnavailable
               ? `High scholarly index demand. Seamlessly re-routing query...`
               : `Quota/rate limit encountered. Switching to fallback model (${nextModel})...`
           );
         }
-        await new Promise((r) => setTimeout(r, waitSec * 1000));
+        if (waitSec > 0) {
+          await new Promise((r) => setTimeout(r, waitSec * 1000));
+        }
         continue;
       }
       if (attempt === maxRetries) {

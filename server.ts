@@ -102,12 +102,38 @@ app.post('/api/validate-key', async (req: Request, res: Response) => {
     }
     const { getGeminiClient, humanizeApiError } = await import('./server/geminiWorkflow.ts');
     const testAi = getGeminiClient(apiKey.trim());
-    await testAi.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: 'ping',
-      config: { thinkingConfig: { thinkingBudget: 0 } },
-    });
-    res.json({ valid: true, message: 'Gemini API key verified successfully with active quota!' });
+
+    // Try gemini-3.8-flash first (required for new projects), then older models
+    const testCandidates = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+    let verified = false;
+    let lastErr: any = null;
+
+    for (const modelName of testCandidates) {
+      try {
+        await testAi.models.generateContent({
+          model: modelName,
+          contents: 'ping',
+          config: { thinkingConfig: { thinkingBudget: 0 } },
+        });
+        verified = true;
+        break;
+      } catch (err: any) {
+        lastErr = err;
+        const msg = err?.message || '';
+        // If this model is deprecated or not available to this user, continue to the next model
+        if (msg.includes('no longer available') || err?.status === 404 || msg.includes('NOT_FOUND')) {
+          continue;
+        }
+        // If it's a quota (429) or invalid key (403), stop immediately
+        break;
+      }
+    }
+
+    if (verified) {
+      res.json({ valid: true, message: 'Gemini API key verified successfully with active quota!' });
+    } else {
+      res.status(400).json({ valid: false, message: humanizeApiError(lastErr) });
+    }
   } catch (err: any) {
     const { humanizeApiError } = await import('./server/geminiWorkflow.ts');
     res.status(400).json({ valid: false, message: humanizeApiError(err) });
