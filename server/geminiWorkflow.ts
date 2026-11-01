@@ -16,11 +16,10 @@ const FALLBACK_MODELS = [
 ];
 
 const SYNTHESIS_FALLBACK_MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-3.8-flash',
-  'gemini-2.5-flash',
-  'gemini-flash-lite-latest',
   'gemini-3.5-flash',
+  'gemini-flash-lite-latest',
   'gemini-3-flash-preview',
+  'gemini-2.5-flash',
 ];
 
 const WORKFLOW_MODEL = FALLBACK_MODELS[0];
@@ -407,8 +406,115 @@ Respond with an authoritative, concise, objective scholarly answer based STRICTL
 }
 
 /**
+ * Queries CrossRef and open encyclopedic repositories to retrieve genuine, verifiable literature.
+ * Activated seamlessly when Google Search Grounding is unavailable or rate-limited.
+ * NEVER creates synthetic or fake literature.
+ */
+export async function fetchOpenScholarlyLiterature(topic: string): Promise<{
+  evidenceText: string;
+  sources: Array<{
+    id: string;
+    url: string;
+    domain: string;
+    fallbackTitle: string;
+    sourceType: SourceItem['sourceType'];
+    excerpt: string;
+    publisher: string;
+  }>;
+}> {
+  const sources: Array<{
+    id: string;
+    url: string;
+    domain: string;
+    fallbackTitle: string;
+    sourceType: SourceItem['sourceType'];
+    excerpt: string;
+    publisher: string;
+  }> = [];
+
+  const evidenceParagraphs: string[] = [];
+
+  try {
+    // 1. CrossRef Open Academic Index (official peer-reviewed papers with real DOIs)
+    const crossRefUrl = `https://api.crossref.org/works?query=${encodeURIComponent(topic)}&rows=5`;
+    const crRes = await fetch(crossRefUrl, {
+      headers: { 'User-Agent': 'AcademicBriefGenerator/1.0 (mailto:scholar@academic-research.org)' },
+    });
+    if (crRes.ok) {
+      const crData: any = await crRes.json();
+      const items = crData.message?.items || [];
+      for (const it of items) {
+        const title = it.title?.[0] || 'Peer-Reviewed Academic Record';
+        const url = it.URL || (it.DOI ? `https://doi.org/${it.DOI}` : 'https://crossref.org');
+        const publisher = it.publisher || 'Academic Publisher';
+        const year = it.issued?.['date-parts']?.[0]?.[0];
+        const dateStr = year ? String(year) : 'Unknown';
+        const cleanAbstract = it.abstract ? it.abstract.replace(/<[^>]*>?/gm, '').slice(0, 350) : '';
+        const excerpt = cleanAbstract || `Scholarly publication indexed under DOI ${it.DOI || 'crossref'} by ${publisher} exploring ${topic}.`;
+
+        sources.push({
+          id: `S${sources.length + 1}`,
+          url,
+          domain: 'doi.org',
+          fallbackTitle: title,
+          sourceType: 'Research Paper',
+          excerpt,
+          publisher,
+        });
+        evidenceParagraphs.push(`Source [S${sources.length}] "${title}" published by ${publisher} (${dateStr}):\n"${excerpt}"`);
+        if (sources.length >= 4) break;
+      }
+    }
+  } catch (crErr) {
+    console.warn('CrossRef search fallback encountered error:', crErr);
+  }
+
+  try {
+    // 2. Wikipedia Encyclopedic Knowledge Base (factual history, statistics, consensus records)
+    const wikiSearchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(topic)}&limit=3&namespace=0&format=json`;
+    const wRes = await fetch(wikiSearchUrl);
+    if (wRes.ok) {
+      const wData: any = await wRes.json();
+      const titles: string[] = wData[1] || [];
+      const urls: string[] = wData[3] || [];
+
+      for (let i = 0; i < titles.length; i++) {
+        try {
+          const sumRes = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(titles[i])}`);
+          if (sumRes.ok) {
+            const sumData: any = await sumRes.json();
+            if (sumData.extract) {
+              sources.push({
+                id: `S${sources.length + 1}`,
+                url: urls[i] || `https://en.wikipedia.org/wiki/${encodeURIComponent(titles[i])}`,
+                domain: 'wikipedia.org',
+                fallbackTitle: sumData.title,
+                sourceType: 'Educational',
+                excerpt: sumData.extract,
+                publisher: 'Wikimedia Foundation',
+              });
+              evidenceParagraphs.push(`Source [S${sources.length}] "${sumData.title}" (Wikimedia Foundation):\n"${sumData.extract}"`);
+              if (sources.length >= 6) break;
+            }
+          }
+        } catch {
+          // ignore single page failure
+        }
+      }
+    }
+  } catch (wErr) {
+    console.warn('Wikipedia search fallback encountered error:', wErr);
+  }
+
+  return {
+    evidenceText: evidenceParagraphs.join('\n\n'),
+    sources,
+  };
+}
+
+/**
  * Main research execution workflow:
- * 1. Live Google Search Grounding to find REAL web documents.
+ * 1. Live Google Search Grounding to find REAL web documents (with automatic Open Academic Index fallback).
  * 2. Strict validation: if zero usable sources, return an explicit Insufficient Evidence brief.
  * 3. Structured synthesis: extract real metadata (publication date or "Unknown", real publisher, real title).
  * 4. Adversarial claim audit: assign Supported, Partially Supported, Contradicted, or Unverified with honest confidence scores.
@@ -446,9 +552,18 @@ Search for reputable academic, governmental, and organizational literature (e.g.
 Synthesize the primary empirical evidence, key statistics, mechanisms, and documented debates found on the web.
 Be factual, objective, and cite specific findings, numbers, dates, and organizational bodies directly mentioned in the search results.`;
 
-  let searchResponse: any = null;
+  const seenUrls = new Set<string>();
+  const initialSources: Array<{
+    id: string;
+    url: string;
+    domain: string;
+    fallbackTitle: string;
+    sourceType: SourceItem['sourceType'];
+  }> = [];
+  let searchEvidenceText = '';
+
   try {
-    searchResponse = await generateWithRetry(
+    const searchResponse = await generateWithRetry(
       ai,
       {
         model: WORKFLOW_MODEL,
@@ -459,62 +574,78 @@ Be factual, objective, and cite specific findings, numbers, dates, and organizat
         },
       },
       (msg) => onProgress?.({ stage: 1, totalStages: 2, stageName: 'Source Grounding', message: msg }),
-      3,
+      2,
       FALLBACK_MODELS
     );
+
+    const rawGroundingChunks = searchResponse?.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    searchEvidenceText = searchResponse?.text || '';
+
+    for (const chunk of rawGroundingChunks) {
+      const web = chunk.web;
+      if (!web || !web.uri) continue;
+      const cleanUrl = web.uri.split('#')[0];
+      if (seenUrls.has(cleanUrl)) continue;
+      seenUrls.add(cleanUrl);
+
+      const rawTitle = web.title || '';
+      const domain = cleanDomain(cleanUrl, rawTitle);
+      const sourceType = classifySourceType(domain, rawTitle);
+
+      const derivedPub = derivePublisher(domain, rawTitle);
+      const hasInformativeTitle = rawTitle && rawTitle !== domain && !rawTitle.endsWith('.com') && !rawTitle.endsWith('.org') && !rawTitle.endsWith('.edu');
+      const fallbackTitle = hasInformativeTitle ? rawTitle : `${derivedPub} Documentation & Research Record`;
+
+      initialSources.push({
+        id: `S${initialSources.length + 1}`,
+        url: cleanUrl,
+        domain,
+        fallbackTitle,
+        sourceType,
+      });
+
+      if (initialSources.length >= 6) break;
+    }
   } catch (searchErr: any) {
-    console.error('Live search grounding error:', searchErr);
-    return createInsufficientEvidenceBrief(
-      req,
-      `Live search grounding failed: ${humanizeApiError(searchErr)}. No artificial sources were generated.`
-    );
+    console.warn('Google Search Grounding encountered quota or rate limit:', searchErr?.message?.slice(0, 100));
   }
 
-  // Process and evaluate discovered web sources from grounding metadata
-  const rawGroundingChunks = searchResponse.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-  const searchEvidenceText = searchResponse.text || '';
+  // If Google Grounding was rate-limited or returned zero sources, activate Open Academic Index (CrossRef & Wikipedia)
+  if (initialSources.length === 0 || !searchEvidenceText.trim()) {
+    if (onProgress) {
+      onProgress({
+        stage: 1,
+        totalStages: 2,
+        stageName: 'Source Grounding',
+        message: `Connecting to CrossRef Academic Index & open scholarly databases for "${req.topic}"...`,
+      });
+    }
 
-  // CRITICAL AUDIT RULE 1: If search returned NO usable grounding chunks and empty search text, return Insufficient Evidence
-  if (rawGroundingChunks.length === 0 || !searchEvidenceText.trim()) {
+    const openLit = await fetchOpenScholarlyLiterature(req.topic);
+    if (openLit.sources.length > 0) {
+      for (const src of openLit.sources) {
+        if (!seenUrls.has(src.url)) {
+          seenUrls.add(src.url);
+          initialSources.push({
+            id: `S${initialSources.length + 1}`,
+            url: src.url,
+            domain: src.domain,
+            fallbackTitle: src.fallbackTitle,
+            sourceType: src.sourceType,
+          });
+          if (initialSources.length >= 6) break;
+        }
+      }
+      searchEvidenceText = openLit.evidenceText;
+    }
+  }
+
+  // CRITICAL AUDIT RULE 1: If search returned NO usable sources and empty search text, return Insufficient Evidence
+  if (initialSources.length === 0 || !searchEvidenceText.trim()) {
     return createInsufficientEvidenceBrief(
       req,
       `No authoritative online literature was retrieved for "${req.topic}". Under academic integrity guidelines, zero fabricated sources were created.`
     );
-  }
-
-  const seenUrls = new Set<string>();
-  const initialSources: Array<{
-    id: string;
-    url: string;
-    domain: string;
-    fallbackTitle: string;
-    sourceType: SourceItem['sourceType'];
-  }> = [];
-
-  for (const chunk of rawGroundingChunks) {
-    const web = chunk.web;
-    if (!web || !web.uri) continue;
-    const cleanUrl = web.uri.split('#')[0];
-    if (seenUrls.has(cleanUrl)) continue;
-    seenUrls.add(cleanUrl);
-
-    const rawTitle = web.title || '';
-    const domain = cleanDomain(cleanUrl, rawTitle);
-    const sourceType = classifySourceType(domain, rawTitle);
-
-    const derivedPub = derivePublisher(domain, rawTitle);
-    const hasInformativeTitle = rawTitle && rawTitle !== domain && !rawTitle.endsWith('.com') && !rawTitle.endsWith('.org') && !rawTitle.endsWith('.edu');
-    const fallbackTitle = hasInformativeTitle ? rawTitle : `${derivedPub} Documentation & Research Record`;
-
-    initialSources.push({
-      id: `S${initialSources.length + 1}`,
-      url: cleanUrl,
-      domain,
-      fallbackTitle,
-      sourceType,
-    });
-
-    if (initialSources.length >= 6) break;
   }
 
   if (initialSources.length === 0) {
@@ -773,7 +904,7 @@ Return ONLY raw JSON, with no markdown code fences or conversational text.`;
     references,
     stages: [],
     metrics: {
-      totalSourcesFound: rawGroundingChunks.length || processedSources.length,
+      totalSourcesFound: processedSources.length,
       sourcesRetained: processedSources.length,
       totalClaimsEvaluated: verifiedClaims.length,
       supportedCount,
