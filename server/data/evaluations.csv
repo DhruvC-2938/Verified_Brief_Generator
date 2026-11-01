@@ -16,3 +16,4 @@ id,timestamp,topic,academicLevel,briefLength,title,totalSources,totalClaims,supp
 "EVAL-MVXCL1E6-1SC","2026-11-01T04:46:23.310Z","Cyber Security","undergraduate","medium","An Academic Brief on Contemporary Cyber Security: Empirical Trends, Defense Mechanisms, and Ongoing Debates",6,3,3,92,74,true
 "EVAL-MVXD1LUG-6AX","2026-11-01T04:59:16.312Z","Green Energy","undergraduate","medium","An Academic Brief on Green Energy: Empirical Trends, Production Mechanisms, and Implementation Challenges",6,4,4,90,68,true
 "EVAL-MVXL2SKB-QC6","2026-11-01T08:44:08.603Z","electric energy","undergraduate","medium","An Undergraduate Brief on Electric Energy: Generation, Consumption, and the Global Energy Transition",6,14,14,93,77,true
+"EVAL-MVXNFBCM-0WS","2026-11-01T09:49:52.054Z","Impact of AI on Global Labor Productivity","undergraduate","medium","The Impact of Artificial Intelligence on Global Labor Productivity: An Undergraduate Academic Brief",6,12,12,91,70,true
