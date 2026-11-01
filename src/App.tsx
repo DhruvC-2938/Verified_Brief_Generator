@@ -273,36 +273,36 @@ export default function App() {
               )}
 
               {/* Clean Perplexity Minimal Navigation & Grounding Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e5e7eb]">
-                {/* Clean Flat Tabs */}
-                <nav className="flex items-center gap-1.5 overflow-x-auto text-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#e2e8f0]">
+                {/* Segmented Pill Tabs */}
+                <div className="bg-[#f1f5f9] p-1 rounded-2xl flex items-center gap-1 overflow-x-auto shadow-2xs">
                   <button
                     onClick={() => setActiveTab('brief')}
-                    className={`py-1.5 px-3 rounded-lg font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                    className={`py-1.5 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer text-xs ${
                       activeTab === 'brief'
-                        ? 'bg-[#20808d] text-white font-semibold shadow-xs'
-                        : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
+                        ? 'bg-white text-[#0f172a] font-semibold shadow-soft'
+                        : 'text-[#64748b] hover:text-[#0f172a]'
                     }`}
                   >
-                    <BookOpen className="w-3.5 h-3.5" />
+                    <BookOpen className="w-3.5 h-3.5 text-[#20808d]" />
                     <span>Academic Brief</span>
                   </button>
 
                   <button
                     onClick={() => setActiveTab('claims')}
-                    className={`py-1.5 px-3 rounded-lg font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                    className={`py-1.5 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer text-xs ${
                       activeTab === 'claims'
-                        ? 'bg-[#20808d] text-white font-semibold shadow-xs'
-                        : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
+                        ? 'bg-white text-[#0f172a] font-semibold shadow-soft'
+                        : 'text-[#64748b] hover:text-[#0f172a]'
                     }`}
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#20808d]" />
                     <span>Claim Verification</span>
                     <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-semibold ${
                         activeTab === 'claims'
-                          ? 'bg-white/20 text-white'
-                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                          ? 'bg-[#e6f4f5] text-[#20808d]'
+                          : 'bg-[#e2e8f0] text-[#64748b]'
                       }`}
                     >
                       {brief.claims.length}
@@ -311,25 +311,25 @@ export default function App() {
 
                   <button
                     onClick={() => setActiveTab('sources')}
-                    className={`py-1.5 px-3 rounded-lg font-medium flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
+                    className={`py-1.5 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer text-xs ${
                       activeTab === 'sources'
-                        ? 'bg-[#20808d] text-white font-semibold shadow-xs'
-                        : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
+                        ? 'bg-white text-[#0f172a] font-semibold shadow-soft'
+                        : 'text-[#64748b] hover:text-[#0f172a]'
                     }`}
                   >
-                    <Globe className="w-3.5 h-3.5" />
+                    <Globe className="w-3.5 h-3.5 text-[#20808d]" />
                     <span>Sources & Citations</span>
                     <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-semibold ${
                         activeTab === 'sources'
-                          ? 'bg-white/20 text-white'
-                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                          ? 'bg-[#e6f4f5] text-[#20808d]'
+                          : 'bg-[#e2e8f0] text-[#64748b]'
                       }`}
                     >
                       {brief.sources.length}
                     </span>
                   </button>
-                </nav>
+                </div>
 
                 {/* Status Badges & Quick Action */}
                 <div className="flex items-center gap-2 self-start sm:self-auto text-xs">

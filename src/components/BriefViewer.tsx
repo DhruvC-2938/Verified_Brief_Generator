@@ -162,51 +162,59 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
   };
 
   return (
-    <div className="space-y-6 font-sans">
+    <div className="space-y-7 font-sans">
       {/* Top Title & Metadata Row */}
-      <div className="space-y-3 pb-2">
-        <div className="flex flex-wrap items-center gap-2 text-xs text-[#6b7280]">
-          <span className="capitalize px-2.5 py-0.5 rounded-full bg-[#f3f4f6] text-[#374151] border border-[#e5e7eb] font-medium">
+      <div className="space-y-4 pb-1">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-[#64748b]">
+          <span className="capitalize px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1e293b] border border-[#e2e8f0] font-semibold text-[11px] shadow-2xs">
             {brief.academicLevel} Level
           </span>
-          <span>•</span>
-          <span className="flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-[#9ca3af]" />
+          <span className="text-[#cbd5e1]">•</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <Calendar className="w-3.5 h-3.5 text-[#94a3b8]" />
             {formattedDate}
           </span>
-          <span>•</span>
-          <span className="flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-[#9ca3af]" />
+          <span className="text-[#cbd5e1]">•</span>
+          <span className="flex items-center gap-1.5 font-medium">
+            <Clock className="w-3.5 h-3.5 text-[#94a3b8]" />
             ~{readTimeMin} min read ({estimatedWords} words)
           </span>
         </div>
 
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-[#111827] tracking-tight leading-snug">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#0f172a] tracking-tight leading-tight">
           {brief.title}
         </h1>
 
-        <div className="p-3.5 rounded-xl bg-[#f9fafb] border border-[#e5e7eb] flex items-center justify-between gap-3 text-xs text-[#4b5563]">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-[#20808d] shrink-0" />
-            <span><strong>Research Question:</strong> {brief.researchQuestion}</span>
+        {/* Central Research Question Callout */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#f8fafc] via-[#f8fafc] to-[#f1f5f9] border border-[#e2e8f0] flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs shadow-soft">
+          <div className="flex items-start gap-3.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-[#e6f4f5] text-[#20808d] flex items-center justify-center shrink-0 border border-[#bce2e6] shadow-2xs mt-0.5">
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <div className="space-y-0.5 min-w-0">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748b] block">Central Research Question</span>
+              <p className="text-xs sm:text-sm font-medium text-[#1e293b] leading-relaxed">
+                {brief.researchQuestion}
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
             <button
               onClick={handleCopyMarkdown}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white hover:bg-[#f3f4f6] text-[#374151] border border-[#e5e7eb] text-xs font-medium transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#f8fafc] text-[#334155] border border-[#e2e8f0] text-xs font-medium transition-all shadow-2xs hover:shadow-soft cursor-pointer"
               title="Copy Brief Markdown"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-[#10b981]" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-[#10b981]" /> : <Copy className="w-3.5 h-3.5 text-[#64748b]" />}
               <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
 
             <button
               onClick={handlePrint}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white hover:bg-[#f3f4f6] text-[#374151] border border-[#e5e7eb] text-xs font-medium transition-colors shadow-2xs cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-[#f8fafc] text-[#334155] border border-[#e2e8f0] text-xs font-medium transition-all shadow-2xs hover:shadow-soft cursor-pointer"
               title="Print or Export PDF"
             >
-              <Printer className="w-3.5 h-3.5" />
+              <Printer className="w-3.5 h-3.5 text-[#64748b]" />
               <span>Print</span>
             </button>
           </div>
@@ -214,11 +222,11 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
       </div>
 
       {/* Iconic Perplexity Top Sources Strip */}
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#111827]">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#0f172a]">
             <Globe className="w-4 h-4 text-[#20808d]" />
-            <span>Sources ({brief.sources.length})</span>
+            <span>Retrieved Sources ({brief.sources.length})</span>
           </div>
 
           <button
@@ -230,33 +238,43 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
         </div>
 
         {/* Horizontal Scrolling Source Cards Carousel */}
-        <div className="flex items-stretch gap-2.5 overflow-x-auto pb-2 scrollbar-thin">
+        <div className="flex items-stretch gap-3 overflow-x-auto pb-2 scrollbar-thin">
           {brief.sources.map((src) => (
             <div
               key={src.id}
               onClick={() => onOpenSourceModal?.(src)}
-              className="w-56 shrink-0 p-3 rounded-xl bg-white hover:bg-[#f9fafb] border border-[#e5e7eb] hover:border-[#20808d] shadow-2xs cursor-pointer transition-all flex flex-col justify-between gap-2 group"
+              className="w-60 shrink-0 p-3.5 rounded-2xl bg-white hover:bg-[#f8fafc] border border-[#e2e8f0] hover:border-[#20808d]/60 shadow-soft hover:shadow-card hover:-translate-y-0.5 cursor-pointer transition-all duration-200 flex flex-col justify-between gap-2.5 group"
             >
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-[#e6f4f5] text-[#20808d] border border-[#bce2e6]">
-                    [{src.id}]
-                  </span>
-                  <span className="text-[10px] font-mono text-[#059669]">
+                  <div className="flex items-center gap-1.5">
+                    <img
+                      src={`https://www.google.com/s2/favicons?domain=${src.domain}&sz=32`}
+                      alt=""
+                      className="w-3.5 h-3.5 rounded-xs"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-md bg-[#e6f4f5] text-[#20808d] border border-[#bce2e6]">
+                      [{src.id}]
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono font-semibold text-[#059669] bg-[#ecfdf5] px-1.5 py-0.2 rounded border border-[#a7f3d0]">
                     {src.credibilityScore}% Rigor
                   </span>
                 </div>
-                <h5 className="text-xs font-semibold text-[#111827] line-clamp-1 group-hover:text-[#20808d] transition-colors">
+                <h5 className="text-xs font-semibold text-[#0f172a] line-clamp-2 leading-snug group-hover:text-[#20808d] transition-colors">
                   {src.title}
                 </h5>
-                <p className="text-[11px] text-[#6b7280] line-clamp-1">
+                <p className="text-[11px] text-[#64748b] line-clamp-1">
                   {src.publisher}
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-1 border-t border-[#f3f4f6] text-[10px] text-[#9ca3af]">
-                <span className="truncate max-w-[140px] font-mono">{src.domain}</span>
-                <ExternalLink className="w-3 h-3 text-[#9ca3af] group-hover:text-[#20808d]" />
+              <div className="flex items-center justify-between pt-2 border-t border-[#f1f5f9] text-[10px] text-[#94a3b8]">
+                <span className="truncate max-w-[150px] font-mono text-[#64748b]">{src.domain}</span>
+                <ExternalLink className="w-3 h-3 text-[#94a3b8] group-hover:text-[#20808d]" />
               </div>
             </div>
           ))}
@@ -264,34 +282,38 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
       </div>
 
       {/* Main Reading Canvas */}
-      <article className="bg-white rounded-2xl border border-[#e5e7eb] shadow-xs p-6 sm:p-9 space-y-8 leading-relaxed">
+      <article className="bg-white rounded-3xl border border-[#e2e8f0] shadow-card p-6 sm:p-10 md:p-12 space-y-10 leading-relaxed">
         {/* 1. Executive Summary */}
-        <section className="space-y-3">
-          <h2 className="text-base sm:text-lg font-semibold text-[#111827] flex items-center gap-2 border-b border-[#f3f4f6] pb-2">
-            <span className="w-2 h-2 rounded-full bg-[#20808d]" />
-            <span>Executive Summary</span>
-          </h2>
-          <div className="text-sm sm:text-base text-[#1f2937] leading-relaxed whitespace-pre-line">
+        <section className="space-y-3.5">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">01</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+              Executive Summary
+            </h2>
+          </div>
+          <div className="text-sm sm:text-base text-[#334155] leading-relaxed whitespace-pre-line">
             {renderTextWithCitations(brief.executiveSummary)}
           </div>
         </section>
 
         {/* 2. Key Findings */}
-        <section className="space-y-3">
-          <h2 className="text-base sm:text-lg font-semibold text-[#111827] flex items-center gap-2 border-b border-[#f3f4f6] pb-2">
-            <span className="w-2 h-2 rounded-full bg-[#20808d]" />
-            <span>Key Empirical Findings</span>
-          </h2>
-          <div className="grid grid-cols-1 gap-2.5">
+        <section className="space-y-4">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">02</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+              Key Empirical Findings
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 gap-3">
             {brief.keyFindings.map((finding, idx) => (
               <div
                 key={idx}
-                className="p-3.5 rounded-xl bg-[#f9fafb] border border-[#e5e7eb] flex items-start gap-3"
+                className="p-4 rounded-2xl bg-[#f8fafc] hover:bg-white border border-[#e2e8f0] hover:border-[#20808d]/40 transition-all shadow-2xs hover:shadow-soft flex items-start gap-3.5"
               >
-                <span className="w-5 h-5 rounded-full bg-[#e6f4f5] text-[#20808d] text-xs font-semibold flex items-center justify-center shrink-0 mt-0.5">
+                <span className="w-6 h-6 rounded-full bg-[#e6f4f5] text-[#20808d] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-[#bce2e6]">
                   {idx + 1}
                 </span>
-                <div className="text-xs sm:text-sm text-[#1f2937] leading-relaxed flex-1">
+                <div className="text-xs sm:text-sm text-[#1e293b] leading-relaxed flex-1">
                   {renderTextWithCitations(finding)}
                 </div>
               </div>
@@ -301,53 +323,61 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
 
         {/* 3. Introduction & Context */}
         {brief.introduction && (
-          <section className="space-y-3">
-            <h2 className="text-base sm:text-lg font-semibold text-[#111827] flex items-center gap-2 border-b border-[#f3f4f6] pb-2">
-              <span className="w-2 h-2 rounded-full bg-[#20808d]" />
-              <span>Background & Context</span>
-            </h2>
-            <div className="text-xs sm:text-sm text-[#374151] leading-relaxed whitespace-pre-line">
+          <section className="space-y-3.5">
+            <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
+              <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">03</span>
+              <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+                Theoretical Background & Context
+              </h2>
+            </div>
+            <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line">
               {renderTextWithCitations(brief.introduction)}
             </div>
           </section>
         )}
 
         {/* 4. Evidence Analysis */}
-        <section className="space-y-3">
-          <h2 className="text-base sm:text-lg font-semibold text-[#111827] flex items-center gap-2 border-b border-[#f3f4f6] pb-2">
-            <span className="w-2 h-2 rounded-full bg-[#20808d]" />
-            <span>Evidence Analysis & Mechanism Synthesis</span>
-          </h2>
-          <div className="text-xs sm:text-sm text-[#374151] leading-relaxed whitespace-pre-line">
+        <section className="space-y-3.5">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">04</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+              Empirical Evidence Analysis & Mechanism Synthesis
+            </h2>
+          </div>
+          <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line">
             {renderTextWithCitations(brief.evidenceAnalysis)}
           </div>
         </section>
 
         {/* 5. Limitations & Conflicting Info */}
-        <section className="space-y-3">
-          <h2 className="text-base sm:text-lg font-semibold text-[#111827] flex items-center gap-2 border-b border-[#f3f4f6] pb-2">
-            <span className="w-2 h-2 rounded-full bg-[#f59e0b]" />
-            <span>Research Limitations & Disagreements</span>
-          </h2>
-          <div className="p-4 rounded-xl bg-[#fffbeb] border border-[#fef3c7] text-xs sm:text-sm text-[#92400e] leading-relaxed whitespace-pre-line">
+        <section className="space-y-3.5">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
+            <span className="font-mono text-xs font-bold text-[#b45309] bg-[#fffbeb] px-2 py-0.5 rounded-md border border-[#fde68a]">05</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+              Research Limitations & Conflicting Findings
+            </h2>
+          </div>
+          <div className="p-4.5 rounded-2xl bg-[#fffbeb]/60 border border-[#fde68a] text-xs sm:text-sm text-[#92400e] leading-relaxed whitespace-pre-line">
             {renderTextWithCitations(brief.limitationsAndConflictingInfo)}
           </div>
         </section>
 
         {/* 6. Conclusion */}
-        <section className="space-y-3">
-          <h2 className="text-base sm:text-lg font-semibold text-[#111827] flex items-center gap-2 border-b border-[#f3f4f6] pb-2">
-            <span className="w-2 h-2 rounded-full bg-[#20808d]" />
-            <span>Conclusion & Future Research Directions</span>
-          </h2>
-          <div className="text-xs sm:text-sm text-[#374151] leading-relaxed whitespace-pre-line">
+        <section className="space-y-3.5">
+          <div className="flex items-center gap-2.5 pb-2.5 border-b border-[#f1f5f9]">
+            <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] px-2 py-0.5 rounded-md border border-[#bce2e6]">06</span>
+            <h2 className="text-lg sm:text-xl font-semibold text-[#0f172a]">
+              Scholarly Conclusion & Future Research Directions
+            </h2>
+          </div>
+          <div className="text-xs sm:text-sm text-[#334155] leading-relaxed whitespace-pre-line">
             {renderTextWithCitations(brief.conclusion)}
           </div>
         </section>
       </article>
 
       {/* Perplexity Follow-Up Q&A Section */}
-      <div className="bg-white rounded-2xl border border-[#e5e7eb] shadow-xs p-5 sm:p-6 space-y-4">
+      <div className="bg-white rounded-3xl border border-[#e2e8f0] shadow-card p-5 sm:p-7 space-y-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-[#111827]">
           <MessageSquare className="w-4 h-4 text-[#20808d]" />
           <span>Ask a Follow-Up Question</span>

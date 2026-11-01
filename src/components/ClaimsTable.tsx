@@ -172,20 +172,20 @@ export const ClaimsTable: React.FC<ClaimsTableProps> = ({
       </div>
 
       {/* Claims List */}
-      <div className="space-y-3.5">
+      <div className="space-y-4">
         {filteredClaims.map((claim) => (
           <div
             key={claim.id}
-            className="p-5 rounded-2xl bg-white border border-[#e5e7eb] shadow-xs space-y-3 hover:border-[#20808d] transition-all"
+            className="p-5 sm:p-6 rounded-3xl bg-white border border-[#e2e8f0] shadow-soft hover:shadow-card hover:border-[#20808d]/60 space-y-3.5 transition-all duration-200"
           >
             {/* Header: ID, Section, Status */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#f3f4f6]">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#f1f5f9]">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] border border-[#bce2e6] px-2 py-0.5 rounded-md">
+                <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] border border-[#bce2e6] px-2.5 py-0.5 rounded-md shadow-2xs">
                   [{claim.id}]
                 </span>
-                <span className="text-xs text-[#6b7280]">
-                  Section: <strong className="text-[#111827]">{claim.sectionRef}</strong>
+                <span className="text-xs text-[#64748b]">
+                  Section: <strong className="text-[#0f172a] font-medium">{claim.sectionRef}</strong>
                 </span>
               </div>
 
@@ -194,26 +194,26 @@ export const ClaimsTable: React.FC<ClaimsTableProps> = ({
 
             {/* Factual Claim Assertion */}
             <div>
-              <h4 className="text-sm sm:text-base font-semibold text-[#111827] leading-snug">
+              <h4 className="text-sm sm:text-base font-semibold text-[#0f172a] leading-snug">
                 "{claim.claimText}"
               </h4>
             </div>
 
             {/* Verbatim Retrieved Excerpt Pull-Quote */}
-            <div className="p-3.5 rounded-xl bg-[#f9fafb] border-l-2 border-[#20808d]/30 border border-[#e5e7eb] text-xs space-y-1">
-              <span className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider block">
+            <div className="p-4 rounded-2xl bg-[#f8fafc] border-l-4 border-l-[#20808d] border border-[#e2e8f0] text-xs space-y-1 shadow-2xs">
+              <span className="text-[10px] font-bold text-[#64748b] uppercase tracking-wider block">
                 Retrieved Empirical Excerpt
               </span>
-              <p className="text-[#374151] italic leading-relaxed">
+              <p className="text-[#334155] italic leading-relaxed">
                 "{claim.evidenceExcerpt}"
               </p>
             </div>
 
             {/* Verification Rationale & Sources */}
             <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-              <div className="text-[#6b7280] text-xs flex-1">
-                <span>Rationale: </span>
-                <span className="text-[#374151] font-medium">{claim.rationale}</span>
+              <div className="text-[#64748b] text-xs flex-1">
+                <span className="font-semibold text-[#475569]">Audit Rationale: </span>
+                <span className="text-[#334155]">{claim.rationale}</span>
               </div>
 
               {/* Source Link Chips */}

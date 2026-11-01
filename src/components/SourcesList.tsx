@@ -180,38 +180,45 @@ export const SourcesList: React.FC<SourcesListProps> = ({
           return (
             <article
               key={source.id}
-              className="p-5 rounded-2xl bg-white border border-[#e5e7eb] shadow-xs flex flex-col justify-between gap-4 hover:border-[#20808d] transition-all group"
+              className="p-5 sm:p-6 rounded-3xl bg-white border border-[#e2e8f0] shadow-soft hover:shadow-card hover:border-[#20808d]/60 flex flex-col justify-between gap-4 transition-all duration-200 group"
             >
               {/* Card Header: Source ID, Domain, Credibility */}
-              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#f3f4f6]">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#f1f5f9]">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] border border-[#bce2e6] px-2 py-0.5 rounded-md">
+                  <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] border border-[#bce2e6] px-2.5 py-0.5 rounded-md shadow-2xs">
                     [{source.id}]
                   </span>
-                  <span className="text-xs font-medium text-[#4b5563] bg-[#f3f4f6] px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-medium text-[#475569] bg-[#f1f5f9] px-2.5 py-0.5 rounded-md">
                     {source.sourceType}
                   </span>
                   <a
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-[#6b7280] hover:text-[#20808d] hover:underline font-mono"
+                    className="inline-flex items-center gap-1.5 text-xs text-[#64748b] hover:text-[#20808d] hover:underline font-mono"
                   >
-                    <Globe className="w-3 h-3 text-[#9ca3af]" />
+                    <img
+                      src={`https://www.google.com/s2/favicons?domain=${source.domain}&sz=32`}
+                      alt=""
+                      className="w-3.5 h-3.5 rounded-xs"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
                     <span>{source.domain}</span>
                   </a>
                 </div>
 
                 <div className="flex items-center gap-1.5">
                   <div
-                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                    className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold border shadow-2xs"
                     style={{
-                      backgroundColor: source.credibilityScore >= 80 ? '#ecfdf5' : '#f9fafb',
-                      borderColor: source.credibilityScore >= 80 ? '#a7f3d0' : '#e5e7eb',
-                      color: source.credibilityScore >= 80 ? '#047857' : '#4b5563',
+                      backgroundColor: source.credibilityScore >= 80 ? '#ecfdf5' : '#f8fafc',
+                      borderColor: source.credibilityScore >= 80 ? '#a7f3d0' : '#e2e8f0',
+                      color: source.credibilityScore >= 80 ? '#047857' : '#475569',
                     }}
                   >
-                    <ShieldCheck className="w-3 h-3" />
+                    <ShieldCheck className="w-3.5 h-3.5" />
                     <span>{source.credibilityScore}% Rigor</span>
                   </div>
                 </div>
