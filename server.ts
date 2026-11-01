@@ -92,6 +92,28 @@ app.get('/api/samples/:key', (req: Request, res: Response) => {
   });
 });
 
+// Endpoint to test / validate an optional custom Gemini API Key
+app.post('/api/validate-key', async (req: Request, res: Response) => {
+  try {
+    const { apiKey } = req.body;
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length < 10) {
+      res.status(400).json({ valid: false, message: 'API key is too short or missing.' });
+      return;
+    }
+    const { getGeminiClient, humanizeApiError } = await import('./server/geminiWorkflow.ts');
+    const testAi = getGeminiClient(apiKey.trim());
+    await testAi.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: 'ping',
+      config: { thinkingConfig: { thinkingBudget: 0 } },
+    });
+    res.json({ valid: true, message: 'Gemini API key verified successfully with active quota!' });
+  } catch (err: any) {
+    const { humanizeApiError } = await import('./server/geminiWorkflow.ts');
+    res.status(400).json({ valid: false, message: humanizeApiError(err) });
+  }
+});
+
 // Standard REST Generation Endpoint
 app.post('/api/generate', async (req: Request, res: Response) => {
   try {
@@ -102,6 +124,8 @@ app.post('/api/generate', async (req: Request, res: Response) => {
       return;
     }
 
+    const customKey = (req.headers['x-gemini-api-key'] as string) || (req.body.apiKey as string);
+
     const payload: BriefGenerationRequest = {
       topic: topic.trim(),
       researchQuestion: researchQuestion ? String(researchQuestion).trim() : undefined,
@@ -110,7 +134,7 @@ app.post('/api/generate', async (req: Request, res: Response) => {
       preferredSourceTypes: preferredSourceTypes || 'all',
     };
 
-    const brief = await executeAcademicWorkflow(payload);
+    const brief = await executeAcademicWorkflow(payload, undefined, customKey);
 
     // Save inputs, outputs, and evaluation metrics & trigger automated export
     const record = await saveEvaluationAndTriggerAutomation(payload, brief);
@@ -133,8 +157,9 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       res.status(400).json({ error: 'Question and brief context are required.' });
       return;
     }
+    const customKey = (req.headers['x-gemini-api-key'] as string) || (req.body.apiKey as string);
     const { answerBriefQuestion } = await import('./server/geminiWorkflow.ts');
-    const answer = await answerBriefQuestion(question, briefContext);
+    const answer = await answerBriefQuestion(question, briefContext, customKey);
     res.json({ answer });
   } catch (error: any) {
     console.error('Error answering brief question:', error);
@@ -149,6 +174,7 @@ app.get('/api/stream', async (req: Request, res: Response) => {
   const academicLevel = (req.query.academicLevel as any) || 'undergraduate';
   const briefLength = (req.query.briefLength as any) || 'medium';
   const preferredSourceTypes = (req.query.preferredSourceTypes as any) || 'all';
+  const customKey = (req.headers['x-gemini-api-key'] as string) || (req.query.apiKey as string);
 
   if (!topic || topic.trim().length < 3) {
     res.status(400).json({ error: 'A valid research topic is required.' });
@@ -176,9 +202,13 @@ app.get('/api/stream', async (req: Request, res: Response) => {
 
     sendEvent('status', { message: 'Initiating source-grounded academic research...' });
 
-    const brief = await executeAcademicWorkflow(payload, (update) => {
-      sendEvent('stage_progress', update);
-    });
+    const brief = await executeAcademicWorkflow(
+      payload,
+      (update) => {
+        sendEvent('stage_progress', update);
+      },
+      customKey
+    );
 
     // Save inputs, outputs, and evaluation metrics & trigger automated export
     const record = await saveEvaluationAndTriggerAutomation(payload, brief);

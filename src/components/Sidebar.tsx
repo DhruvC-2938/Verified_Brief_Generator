@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
+  Key,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,6 +22,8 @@ interface SidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   activeView: 'research' | 'evaluations';
+  onOpenApiKeyModal?: () => void;
+  hasCustomKey?: boolean;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -30,6 +33,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isCollapsed,
   onToggleCollapse,
   activeView,
+  onOpenApiKeyModal,
+  hasCustomKey = false,
 }) => {
   return (
     <aside
@@ -159,6 +164,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <FileText className="w-4 h-4 shrink-0" />
             {!isCollapsed && <span>Documentation PDF</span>}
           </a>
+
+          {onOpenApiKeyModal && (
+            <button
+              onClick={onOpenApiKeyModal}
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6] transition-all cursor-pointer ${
+                isCollapsed ? 'justify-center' : ''
+              }`}
+              title="Gemini API Key Settings"
+            >
+              <Key className="w-4 h-4 shrink-0 text-[#20808d]" />
+              {!isCollapsed && (
+                <div className="flex items-center justify-between flex-1">
+                  <span>API Key</span>
+                  {hasCustomKey && (
+                    <span className="w-2 h-2 rounded-full bg-[#10b981]" title="Custom Key Active" />
+                  )}
+                </div>
+              )}
+            </button>
+          )}
         </nav>
       </div>
 

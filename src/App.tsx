@@ -9,6 +9,7 @@ import { ClaimsTable } from './components/ClaimsTable.tsx';
 import { SourcesList } from './components/SourcesList.tsx';
 import { SourceDetailModal } from './components/SourceDetailModal.tsx';
 import { EvaluationsModal } from './components/EvaluationsModal.tsx';
+import { ApiKeyModal } from './components/ApiKeyModal.tsx';
 import {
   AcademicBriefData,
   BriefGenerationRequest,
@@ -37,6 +38,14 @@ export default function App() {
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>('all');
   const [showQueryForm, setShowQueryForm] = useState(true);
   const [showEvaluationsModal, setShowEvaluationsModal] = useState(false);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [hasCustomKey, setHasCustomKey] = useState<boolean>(() => {
+    try {
+      return Boolean(localStorage.getItem('custom_gemini_api_key'));
+    } catch {
+      return false;
+    }
+  });
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Restore active brief from session storage across accidental refreshes or HMR
@@ -111,6 +120,10 @@ export default function App() {
       });
       if (params.researchQuestion) {
         queryParams.set('researchQuestion', params.researchQuestion);
+      }
+      const customKey = localStorage.getItem('custom_gemini_api_key');
+      if (customKey && customKey.trim()) {
+        queryParams.set('apiKey', customKey.trim());
       }
 
       const eventSource = new EventSource(`/api/stream?${queryParams.toString()}`);
@@ -199,6 +212,8 @@ export default function App() {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         activeView={showEvaluationsModal ? 'evaluations' : 'research'}
+        onOpenApiKeyModal={() => setShowApiKeyModal(true)}
+        hasCustomKey={hasCustomKey}
       />
 
       {/* Main Body Layout Shifted by Sidebar */}
@@ -263,12 +278,25 @@ export default function App() {
             <section className="space-y-5 animate-in fade-in duration-300">
               {/* Insufficient Evidence Warning Banner (Only if search failed) */}
               {brief.insufficientEvidence && (
-                <div className="p-4 rounded-xl bg-[#fef2f2] border border-[#fecaca] flex items-center gap-3 text-xs sm:text-sm text-[#b91c1c]">
-                  <AlertCircle className="w-5 h-5 text-[#ef4444] shrink-0" />
-                  <div>
-                    <span className="font-bold block">Insufficient Verifiable Literature Found</span>
-                    <span>{brief.insufficientEvidenceMessage || 'Zero usable authoritative sources were returned by search indices.'}</span>
+                <div className="p-4 rounded-xl bg-[#fef2f2] border border-[#fecaca] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm text-[#b91c1c]">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-[#ef4444] shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold block">Insufficient Verifiable Literature Found</span>
+                      <span className="leading-relaxed">{brief.insufficientEvidenceMessage || 'Zero usable authoritative sources were returned by search indices.'}</span>
+                    </div>
                   </div>
+                  {(brief.insufficientEvidenceMessage?.includes('limit') ||
+                    brief.insufficientEvidenceMessage?.includes('quota') ||
+                    brief.insufficientEvidenceMessage?.includes('Free Tier') ||
+                    brief.insufficientEvidenceMessage?.includes('API key')) && (
+                    <button
+                      onClick={() => setShowApiKeyModal(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-[#fecaca] text-[#b91c1c] hover:bg-[#fee2e2] text-xs font-semibold shrink-0 cursor-pointer transition-colors shadow-2xs self-start sm:self-auto"
+                    >
+                      Update API Key
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -419,6 +447,13 @@ export default function App() {
       <EvaluationsModal
         isOpen={showEvaluationsModal}
         onClose={() => setShowEvaluationsModal(false)}
+      />
+
+      {/* Gemini API Key Settings Modal */}
+      <ApiKeyModal
+        isOpen={showApiKeyModal}
+        onClose={() => setShowApiKeyModal(false)}
+        onKeyChange={(hasKey) => setHasCustomKey(hasKey)}
       />
     </div>
   );

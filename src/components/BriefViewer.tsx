@@ -100,9 +100,15 @@ ${brief.references.map((r) => `[${r.id}] ${r.formattedCitation}`).join('\n')}
     setIsAsking(true);
 
     try {
+      const customKey = localStorage.getItem('custom_gemini_api_key');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (customKey && customKey.trim()) {
+        headers['x-gemini-api-key'] = customKey.trim();
+      }
+
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           question: q,
           briefContext: {

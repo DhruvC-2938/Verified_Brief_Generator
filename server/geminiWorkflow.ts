@@ -14,12 +14,64 @@ const FALLBACK_MODELS = [
   'gemini-2.5-flash',
 ];
 
+const SYNTHESIS_FALLBACK_MODELS = [
+  process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  'gemini-flash-lite-latest',
+  'gemini-3.5-flash',
+  'gemini-3-flash-preview',
+];
+
 const WORKFLOW_MODEL = FALLBACK_MODELS[0];
 
-export function getGeminiClient(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY;
+export function humanizeApiError(err: any): string {
+  if (!err) return 'Unknown error occurred.';
+  let msg = err.message || String(err);
+
+  try {
+    const parsed = JSON.parse(msg);
+    if (parsed.error?.message) {
+      msg = parsed.error.message;
+    }
+  } catch {
+    // not json
+  }
+
+  if (
+    err?.status === 429 ||
+    msg.includes('429') ||
+    msg.includes('RESOURCE_EXHAUSTED') ||
+    msg.includes('Quota exceeded') ||
+    msg.includes('quota')
+  ) {
+    const retryMatch = msg.match(/retry in ([^\n.]+)/i);
+    const retryHint = retryMatch ? ` (Daily reset in ~${retryMatch[1].trim()})` : '';
+    return `Google Gemini API Free Tier daily quota limit exceeded (20 requests/day limit on this project key)${retryHint}. To continue immediately, add a new free API key in settings or enable billing in Google AI Studio.`;
+  }
+
+  if (
+    err?.status === 504 ||
+    msg.includes('504') ||
+    msg.includes('DEADLINE_EXCEEDED') ||
+    msg.includes('timed out')
+  ) {
+    return 'Google Gemini search index timed out due to high upstream latency. Please try running your search again.';
+  }
+
+  if (
+    err?.status === 403 ||
+    msg.includes('API_KEY_INVALID') ||
+    msg.includes('invalid API key')
+  ) {
+    return 'Invalid Gemini API key provided. Please check the API key configured in settings.';
+  }
+
+  return msg;
+}
+
+export function getGeminiClient(customApiKey?: string): GoogleGenAI {
+  const apiKey = (customApiKey && customApiKey.trim()) || process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY environment variable is not set. Please configure it in your environment.');
+    throw new Error('GEMINI_API_KEY environment variable is not set. Please configure it in your environment or provide an API key in settings.');
   }
   return new GoogleGenAI({
     apiKey,
@@ -193,12 +245,13 @@ async function generateWithRetry(
   ai: GoogleGenAI,
   params: any,
   onNotice?: (msg: string) => void,
-  maxRetries = 3
+  maxRetries = 3,
+  modelsList: string[] = FALLBACK_MODELS
 ): Promise<any> {
   let lastError: any = null;
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    const modelIndex = Math.min(attempt - 1, FALLBACK_MODELS.length - 1);
-    const candidateModel = FALLBACK_MODELS[modelIndex];
+    const modelIndex = Math.min(attempt - 1, modelsList.length - 1);
+    const candidateModel = modelsList[modelIndex];
     const callParams = { ...params, model: candidateModel };
 
     try {
@@ -224,13 +277,13 @@ async function generateWithRetry(
         err?.message?.includes('DEADLINE_EXCEEDED');
 
       if ((isRateLimit || isUnavailable) && attempt < maxRetries) {
-        const waitSec = isRateLimit ? attempt * 3 : 2;
-        const nextModel = FALLBACK_MODELS[Math.min(attempt, FALLBACK_MODELS.length - 1)];
+        const waitSec = isRateLimit ? attempt * 2 : 2;
+        const nextModel = modelsList[Math.min(attempt, modelsList.length - 1)];
         if (onNotice) {
           onNotice(
             isUnavailable
               ? `High scholarly index demand. Seamlessly re-routing query...`
-              : `High inquiry traffic. Pausing briefly (${waitSec}s) to optimize retrieval...`
+              : `Quota/rate limit encountered. Switching to fallback model (${nextModel})...`
           );
         }
         await new Promise((r) => setTimeout(r, waitSec * 1000));
@@ -307,9 +360,10 @@ export async function answerBriefQuestion(
     summary: string;
     findings: string[];
     sources: Array<{ id: string; title: string }>;
-  }
+  },
+  customApiKey?: string
 ): Promise<string> {
-  const ai = getGeminiClient();
+  const ai = getGeminiClient(customApiKey);
   const prompt = `You are a distinguished academic research mentor and peer reviewer answering a question about this verified academic brief:
 Title: "${briefContext.title}"
 Topic: "${briefContext.topic}"
@@ -322,13 +376,19 @@ User Question: "${question}"
 Respond with an authoritative, concise, objective scholarly answer based STRICTLY on the brief and cited sources. Do not invent facts outside the cited sources. Use explicit citation tags like [S1], [S2] where applicable.`;
 
   try {
-    const res = await generateWithRetry(ai, {
-      model: WORKFLOW_MODEL,
-      contents: prompt,
-      config: {
-        thinkingConfig: { thinkingBudget: 0 },
+    const res = await generateWithRetry(
+      ai,
+      {
+        model: SYNTHESIS_FALLBACK_MODELS[0],
+        contents: prompt,
+        config: {
+          thinkingConfig: { thinkingBudget: 0 },
+        },
       },
-    });
+      undefined,
+      3,
+      SYNTHESIS_FALLBACK_MODELS
+    );
     return res.text || 'Analysis completed based on the synthesized empirical brief.';
   } catch (err: any) {
     return `Based on the provided brief for "${briefContext.topic}", evidence must be drawn strictly from the cited documentation. Please refer to the verified claims and source audits in the brief.`;
@@ -344,14 +404,15 @@ Respond with an authoritative, concise, objective scholarly answer based STRICTL
  */
 export async function executeAcademicWorkflow(
   req: BriefGenerationRequest,
-  onProgress?: (update: StageProgressUpdate) => void
+  onProgress?: (update: StageProgressUpdate) => void,
+  customApiKey?: string
 ): Promise<AcademicBriefData> {
   // Validate basic query input
   if (!req.topic || req.topic.trim().length < 2) {
     return createInsufficientEvidenceBrief(req, 'The research topic provided is too short or empty.');
   }
 
-  const ai = getGeminiClient();
+  const ai = getGeminiClient(customApiKey);
 
   // 1. Live Google Search Grounding to Discover Authoritative Sources
   if (onProgress) {
@@ -386,13 +447,15 @@ Be factual, objective, and cite specific findings, numbers, dates, and organizat
           thinkingConfig: { thinkingBudget: 0 },
         },
       },
-      (msg) => onProgress?.({ stage: 1, totalStages: 2, stageName: 'Source Grounding', message: msg })
+      (msg) => onProgress?.({ stage: 1, totalStages: 2, stageName: 'Source Grounding', message: msg }),
+      3,
+      FALLBACK_MODELS
     );
   } catch (searchErr: any) {
     console.error('Live search grounding error:', searchErr);
     return createInsufficientEvidenceBrief(
       req,
-      `Live search grounding failed: ${searchErr.message || 'Unable to access live search grounding index'}. No artificial sources were generated.`
+      `Live search grounding failed: ${humanizeApiError(searchErr)}. No artificial sources were generated.`
     );
   }
 
@@ -539,20 +602,22 @@ Return ONLY raw JSON, with no markdown code fences or conversational text.`;
     synthResponse = await generateWithRetry(
       ai,
       {
-        model: WORKFLOW_MODEL,
+        model: SYNTHESIS_FALLBACK_MODELS[0],
         contents: synthesisPrompt,
         config: {
           responseMimeType: 'application/json',
           thinkingConfig: { thinkingBudget: 0 },
         },
       },
-      (msg) => onProgress?.({ stage: 2, totalStages: 2, stageName: 'Brief Synthesis', message: msg })
+      (msg) => onProgress?.({ stage: 2, totalStages: 2, stageName: 'Brief Synthesis', message: msg }),
+      3,
+      SYNTHESIS_FALLBACK_MODELS
     );
   } catch (synthErr: any) {
     console.error('Synthesis error:', synthErr);
     return createInsufficientEvidenceBrief(
       req,
-      `Brief synthesis failed: ${synthErr.message || 'Unable to structure brief output'}. No artificial data was substituted.`
+      `Brief synthesis failed: ${humanizeApiError(synthErr)}. No artificial data was substituted.`
     );
   }
 
