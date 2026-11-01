@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, AlertCircle, HelpCircle, BookOpen } from 'lucide-react';
+import { CheckCircle2, AlertCircle, HelpCircle, ShieldCheck, Sparkles, AlertTriangle } from 'lucide-react';
 import { AcademicBriefData } from '../types/index.ts';
 
 interface MetricsBarProps {
@@ -24,48 +24,50 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
   const isSupportedActive = normalizeStatus(activeStatusFilter) === 'supported';
   const isPartialActive = normalizeStatus(activeStatusFilter) === 'partially_supported';
   const isContradictedActive = normalizeStatus(activeStatusFilter) === 'contradicted';
+  const isUnverifiedActive = normalizeStatus(activeStatusFilter) === 'unverified';
 
   return (
-    <div className="bg-[#fffdf9] rounded-2xl border border-[#e5ddcb] p-5 sm:p-6 shadow-xs space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#eee7da]">
+    <div className="bg-white rounded-2xl border border-[#e5e7eb] p-4 sm:p-5 shadow-xs space-y-4 font-sans">
+      {/* Top Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#f3f4f6]">
         <div>
-          <h3 className="text-base sm:text-lg font-serif font-bold text-[#14233c]">
-            Research Summary & Evidence Check
+          <h3 className="text-sm sm:text-base font-semibold text-[#111827] flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#20808d]" />
+            <span>Verification Rigor & Claim Ledger</span>
           </h3>
-          <p className="text-xs text-[#5e6978] font-sans">
-            Overview of examined claims and verified references
+          <p className="text-xs text-[#6b7280]">
+            Empirical evidence breakdown across audited claims and primary literature
           </p>
         </div>
 
-        {/* Verification Rigor Tag */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#eef4fa] border border-[#c9d9e8] text-xs font-sans text-[#163252] self-start sm:self-auto">
-          <span className="font-semibold">Verification Rigor:</span>
-          <span className="font-mono font-bold text-[#142d4a]">{metrics.verificationRigorScore}%</span>
+        {/* Rigor Score Badge */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#e6f4f5] border border-[#bce2e6] text-xs text-[#20808d] font-semibold self-start sm:self-auto">
+          <span>Verification Rigor:</span>
+          <span className="font-mono text-sm">{metrics.verificationRigorScore}%</span>
         </div>
       </div>
 
-      {/* 4 Soft Editorial Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+      {/* 4 Perplexity Clean Metric Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {/* Supported */}
         <button
           type="button"
           onClick={() => onFilterStatus?.(isSupportedActive ? 'all' : 'supported')}
-          className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+          className={`text-left p-3 rounded-xl border transition-all cursor-pointer ${
             isSupportedActive
-              ? 'bg-[#e4efe7] border-[#86bc95] ring-2 ring-[#86bc95]'
-              : 'bg-[#eff6f1] border-[#cfe1d4] hover:bg-[#e4efe7]'
+              ? 'bg-[#ecfdf5] border-[#10b981] ring-2 ring-[#10b981]/20'
+              : 'bg-[#f9fafb] border-[#e5e7eb] hover:bg-[#f0fdf4] hover:border-[#a7f3d0]'
           }`}
         >
-          <div className="flex items-center justify-between text-[#1c4e2f] mb-1">
-            <span className="text-xs font-medium font-sans">Supported</span>
-            <CheckCircle2 className="w-3.5 h-3.5 text-[#2b6d43]" />
+          <div className="flex items-center justify-between text-[#047857] mb-1">
+            <span className="text-xs font-semibold">Supported</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981]" />
           </div>
-          <div className="text-2xl font-serif font-bold text-[#133c23]">
+          <div className="text-xl sm:text-2xl font-bold text-[#111827]">
             {metrics.supportedCount}
           </div>
-          <div className="text-[11px] text-[#3e6f4f] mt-0.5">
-            Verified by literature
+          <div className="text-[11px] text-[#059669] mt-0.5">
+            Directly corroborated
           </div>
         </button>
 
@@ -73,21 +75,21 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
         <button
           type="button"
           onClick={() => onFilterStatus?.(isPartialActive ? 'all' : 'partially_supported')}
-          className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+          className={`text-left p-3 rounded-xl border transition-all cursor-pointer ${
             isPartialActive
-              ? 'bg-[#faeed3] border-[#deb974] ring-2 ring-[#deb974]'
-              : 'bg-[#fdf8eb] border-[#eddcb9] hover:bg-[#fbf1db]'
+              ? 'bg-[#fffbeb] border-[#f59e0b] ring-2 ring-[#f59e0b]/20'
+              : 'bg-[#f9fafb] border-[#e5e7eb] hover:bg-[#fffbeb] hover:border-[#fde68a]'
           }`}
         >
-          <div className="flex items-center justify-between text-[#7c511b] mb-1">
-            <span className="text-xs font-medium font-sans">Partial</span>
-            <AlertCircle className="w-3.5 h-3.5 text-[#9c6523]" />
+          <div className="flex items-center justify-between text-[#b45309] mb-1">
+            <span className="text-xs font-semibold">Partial</span>
+            <AlertCircle className="w-3.5 h-3.5 text-[#f59e0b]" />
           </div>
-          <div className="text-2xl font-serif font-bold text-[#57360c]">
+          <div className="text-xl sm:text-2xl font-bold text-[#111827]">
             {metrics.partiallySupportedCount}
           </div>
-          <div className="text-[11px] text-[#845b25] mt-0.5">
-            Directional evidence
+          <div className="text-[11px] text-[#b45309] mt-0.5">
+            Limited scope / caveats
           </div>
         </button>
 
@@ -95,37 +97,45 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
         <button
           type="button"
           onClick={() => onFilterStatus?.(isContradictedActive ? 'all' : 'contradicted')}
-          className={`text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+          className={`text-left p-3 rounded-xl border transition-all cursor-pointer ${
             isContradictedActive
-              ? 'bg-[#fae2e5] border-[#d88c97] ring-2 ring-[#d88c97]'
-              : 'bg-[#fdf1f2] border-[#f5d0d6] hover:bg-[#fce5e8]'
+              ? 'bg-[#fef2f2] border-[#ef4444] ring-2 ring-[#ef4444]/20'
+              : 'bg-[#f9fafb] border-[#e5e7eb] hover:bg-[#fef2f2] hover:border-[#fecaca]'
           }`}
         >
-          <div className="flex items-center justify-between text-[#7f1d2a] mb-1">
-            <span className="text-xs font-medium font-sans">Contradicted</span>
-            <HelpCircle className="w-3.5 h-3.5 text-[#9e1c2d]" />
+          <div className="flex items-center justify-between text-[#b91c1c] mb-1">
+            <span className="text-xs font-semibold">Contradicted</span>
+            <AlertTriangle className="w-3.5 h-3.5 text-[#ef4444]" />
           </div>
-          <div className="text-2xl font-serif font-bold text-[#5c101c]">
+          <div className="text-xl sm:text-2xl font-bold text-[#111827]">
             {metrics.contradictedCount}
           </div>
-          <div className="text-[11px] text-[#8e2936] mt-0.5">
-            {metrics.contradictedCount > 0 ? 'Refuted by source data' : '0 false assertions'}
+          <div className="text-[11px] text-[#b91c1c] mt-0.5">
+            Disputed by literature
           </div>
         </button>
 
-        {/* Discovered Sources */}
-        <div className="p-3.5 rounded-xl bg-[#f0f5fa] border border-[#d1e0ee]">
-          <div className="flex items-center justify-between text-[#152e4d] mb-1">
-            <span className="text-xs font-medium font-sans">Sources Vetted</span>
-            <BookOpen className="w-3.5 h-3.5 text-[#1b3a5e]" />
+        {/* Unverified */}
+        <button
+          type="button"
+          onClick={() => onFilterStatus?.(isUnverifiedActive ? 'all' : 'unverified')}
+          className={`text-left p-3 rounded-xl border transition-all cursor-pointer ${
+            isUnverifiedActive
+              ? 'bg-[#f3f4f6] border-[#6b7280] ring-2 ring-[#6b7280]/20'
+              : 'bg-[#f9fafb] border-[#e5e7eb] hover:bg-[#f3f4f6]'
+          }`}
+        >
+          <div className="flex items-center justify-between text-[#4b5563] mb-1">
+            <span className="text-xs font-semibold">Unverified</span>
+            <HelpCircle className="w-3.5 h-3.5 text-[#6b7280]" />
           </div>
-          <div className="text-2xl font-serif font-bold text-[#0f2138]">
-            {metrics.sourcesRetained}
+          <div className="text-xl sm:text-2xl font-bold text-[#111827]">
+            {metrics.unverifiedCount}
           </div>
-          <div className="text-[11px] text-[#3e5b7c] mt-0.5">
-            Average credibility: {metrics.averageSourceCredibility}%
+          <div className="text-[11px] text-[#6b7280] mt-0.5">
+            Insufficient evidence
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );

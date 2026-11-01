@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header.tsx';
+import { Sidebar } from './components/Sidebar.tsx';
 import { ResearchForm } from './components/ResearchForm.tsx';
 import { SynthesisLoader } from './components/SynthesisLoader.tsx';
 import { MetricsBar } from './components/MetricsBar.tsx';
@@ -20,6 +21,9 @@ import {
   FileText,
   AlertCircle,
   Search,
+  Sparkles,
+  Layers,
+  ArrowRight,
 } from 'lucide-react';
 
 export default function App() {
@@ -33,6 +37,7 @@ export default function App() {
   const [activeStatusFilter, setActiveStatusFilter] = useState<string>('all');
   const [showQueryForm, setShowQueryForm] = useState(true);
   const [showEvaluationsModal, setShowEvaluationsModal] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Restore active brief from session storage across accidental refreshes or HMR
   useEffect(() => {
@@ -92,7 +97,7 @@ export default function App() {
     setIsLoading(true);
     setError(null);
     setCurrentTopic(params.topic);
-    setStatusMessage('Searching reputable sources and extracting empirical evidence...');
+    setStatusMessage('Querying reputable academic repositories & government databases...');
     setShowQueryForm(false);
 
     let isCompleted = false;
@@ -150,12 +155,10 @@ export default function App() {
 
       eventSource.addEventListener('error', () => {
         eventSource.close();
-        // If already completed, do NOT trigger redundant fallback request
         if (isCompleted) {
           return;
         }
 
-        // Fallback to standard POST endpoint if SSE drops prematurely
         fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -188,220 +191,256 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f4ec] text-[#222f3e] flex flex-col font-sans">
-      {/* Warm Editorial Header */}
-      <Header
-        onReset={handleReset}
+    <div className="min-h-screen bg-[#fbfbfb] text-[#111827] flex font-sans antialiased selection:bg-[#e6f4f5] selection:text-[#20808d]">
+      {/* Perplexity Sidebar */}
+      <Sidebar
+        onNewResearch={handleReset}
         onOpenEvaluations={() => setShowEvaluationsModal(true)}
-        currentTopic={brief?.topic || currentTopic}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        activeView={showEvaluationsModal ? 'evaluations' : 'research'}
       />
 
-      {/* Main Container - Full Width Occupancy */}
-      <main className="flex-1 w-full px-4 sm:px-8 lg:px-12 xl:px-16 py-6 sm:py-8 space-y-6 overflow-x-hidden">
-        {/* Error Notice */}
-        {error && (
-          <div className="p-4 rounded-xl bg-[#fdf1f2] border border-[#f5d0d6] text-xs sm:text-sm text-[#7f1d2a] flex items-center justify-between gap-3 animate-in fade-in">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-[#9e1c2d] shrink-0" />
-              <span>{error}</span>
+      {/* Main Body Layout Shifted by Sidebar */}
+      <div
+        className={`flex-1 flex flex-col min-w-0 transition-all duration-200 ease-in-out ${
+          isSidebarCollapsed ? 'ml-16' : 'ml-64'
+        }`}
+      >
+        {/* Top Perplexity Minimal Header */}
+        <Header
+          onReset={handleReset}
+          onOpenEvaluations={() => setShowEvaluationsModal(true)}
+          currentTopic={brief?.topic || currentTopic}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
+
+        {/* Content Container */}
+        <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+          {/* Error Notice */}
+          {error && (
+            <div className="p-4 rounded-2xl bg-[#fef2f2] border border-[#fecaca] text-xs sm:text-sm text-[#b91c1c] flex items-center justify-between gap-3 animate-in fade-in">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-[#ef4444] shrink-0" />
+                <span>{error}</span>
+              </div>
+              <button
+                onClick={() => {
+                  setError(null);
+                  setShowQueryForm(true);
+                }}
+                className="text-xs font-semibold underline hover:text-[#991b1b] cursor-pointer"
+              >
+                Try Again
+              </button>
             </div>
-            <button
-              onClick={() => {
-                setError(null);
-                setShowQueryForm(true);
-              }}
-              className="text-xs underline font-medium hover:text-[#531019]"
-            >
-              Try Again
-            </button>
-          </div>
-        )}
+          )}
 
-        {/* Search Input View */}
-        {(showQueryForm || !brief) && !isLoading && (
-          <section className="transition-all">
-            <ResearchForm
-              onSubmit={handleGenerate}
-              onSelectSample={handleLoadSample}
-              isLoading={isLoading}
-            />
-          </section>
-        )}
+          {/* Search Input View (Perplexity Centered Hero) */}
+          {(showQueryForm || !brief) && !isLoading && (
+            <section className="transition-all animate-in fade-in duration-200">
+              <ResearchForm
+                onSubmit={handleGenerate}
+                onSelectSample={handleLoadSample}
+                isLoading={isLoading}
+              />
+            </section>
+          )}
 
-        {/* Warm Editorial Loading Screen */}
-        {isLoading && (
-          <section className="animate-in fade-in duration-200">
-            <SynthesisLoader
-              statusMessage={statusMessage}
-              topic={currentTopic}
-            />
-          </section>
-        )}
+          {/* Perplexity Synthesis Loading State */}
+          {isLoading && (
+            <section className="animate-in fade-in duration-200">
+              <SynthesisLoader
+                statusMessage={statusMessage}
+                topic={currentTopic}
+              />
+            </section>
+          )}
 
-        {/* Results View */}
-        {brief && !isLoading && (
-          <section className="space-y-6 animate-in fade-in duration-300">
-            {/* Dossier Title & Edit Bar */}
-            {!showQueryForm && (
-              <div className="space-y-3">
-                {/* Demo Data Banner when reviewing sample briefs */}
-                {brief.isDemoSample && (
-                  <div className="p-3.5 rounded-xl bg-[#fbf5ea] border border-[#ecdab3] flex items-center justify-between gap-3 text-xs font-sans text-[#7c511b]">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold uppercase tracking-wider bg-[#7c511b] text-white px-2 py-0.5 rounded text-[10px]">
-                        DEMO DATA
-                      </span>
-                      <span>
-                        You are viewing a predefined benchmark example. This is stored demonstration data, not a live web search.
-                      </span>
+          {/* Results View (Perplexity Light Layout) */}
+          {brief && !isLoading && (
+            <section className="space-y-6 animate-in fade-in duration-300">
+              {/* Dossier Topic Bar */}
+              {!showQueryForm && (
+                <div className="space-y-3">
+                  {/* Demo Data Banner when reviewing sample briefs */}
+                  {brief.isDemoSample && (
+                    <div className="p-3.5 rounded-xl bg-[#fffbeb] border border-[#fef3c7] flex items-center justify-between gap-3 text-xs text-[#92400e]">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold uppercase tracking-wider bg-[#f59e0b] text-white px-2 py-0.5 rounded text-[10px]">
+                          DEMO DATA
+                        </span>
+                        <span>
+                          Viewing pre-computed benchmark data. This is stored demonstration data, not a live web search.
+                        </span>
+                      </div>
+                      <button
+                        onClick={handleReset}
+                        className="text-xs font-semibold underline hover:text-[#78350f] shrink-0 cursor-pointer"
+                      >
+                        Run Live Research
+                      </button>
                     </div>
+                  )}
+
+                  {/* Insufficient Evidence Warning Banner */}
+                  {brief.insufficientEvidence && (
+                    <div className="p-4 rounded-xl bg-[#fef2f2] border border-[#fecaca] flex items-center gap-3 text-xs sm:text-sm text-[#b91c1c]">
+                      <AlertCircle className="w-5 h-5 text-[#ef4444] shrink-0" />
+                      <div>
+                        <span className="font-bold block">Insufficient Verifiable Literature Found</span>
+                        <span>{brief.insufficientEvidenceMessage || 'Zero usable authoritative sources were returned by search indices.'}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Bar */}
+                  <div className="bg-white p-4 rounded-2xl border border-[#e5e7eb] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#e6f4f5] text-[#20808d] flex items-center justify-center shrink-0 border border-[#bce2e6]">
+                        <BookOpen className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-[#6b7280]">
+                            Active Research Topic
+                          </span>
+                          {brief.isDemoSample ? (
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#fef3c7] text-[#92400e] font-semibold border border-[#fde68a]">
+                              DEMO SAMPLE
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#ecfdf5] text-[#047857] font-semibold border border-[#a7f3d0]">
+                              LIVE GROUNDED
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm sm:text-base font-semibold text-[#111827] line-clamp-1">
+                          {brief.topic}
+                        </div>
+                      </div>
+                    </div>
+
                     <button
-                      onClick={() => {
-                        handleReset();
-                      }}
-                      className="text-xs font-semibold underline hover:text-[#57360c] shrink-0"
+                      onClick={() => setShowQueryForm(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#374151] hover:text-[#111827] bg-[#f9fafb] hover:bg-[#f3f4f6] border border-[#e5e7eb] rounded-lg transition-colors self-start sm:self-auto cursor-pointer"
                     >
-                      Run Live Research
+                      <Search className="w-3.5 h-3.5 text-[#6b7280]" />
+                      <span>New Inquiry</span>
                     </button>
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Insufficient Evidence Warning Banner */}
-                {brief.insufficientEvidence && (
-                  <div className="p-4 rounded-xl bg-[#faece9] border border-[#f3cec7] flex items-center gap-3 text-xs sm:text-sm text-[#7f2f27] font-sans">
-                    <AlertCircle className="w-5 h-5 text-[#9c3930] shrink-0" />
-                    <div>
-                      <span className="font-bold block">Insufficient Verifiable Literature Found</span>
-                      <span>{brief.insufficientEvidenceMessage || 'Zero usable authoritative sources were returned by search indices.'}</span>
-                    </div>
-                  </div>
-                )}
+              {/* Verification Rigor & Status Chips Bar */}
+              <MetricsBar
+                metrics={brief.metrics}
+                onFilterStatus={(status) => {
+                  setActiveStatusFilter(status);
+                  setActiveTab('claims');
+                }}
+                activeStatusFilter={activeStatusFilter}
+              />
 
-                <div className="bg-[#fffdf9] p-4 rounded-xl border border-[#e5ddcb] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#eef4fa] text-[#182c4a] flex items-center justify-center shrink-0 border border-[#c9d9e8]">
-                      <BookOpen className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11px] font-sans text-[#5e6978]">
-                          Research Topic
-                        </span>
-                        {brief.isDemoSample ? (
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#faeed3] text-[#7c511b] font-semibold border border-[#eedcb9]">
-                            DEMO SAMPLE
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-[#eef6f0] text-[#1b4e2c] font-semibold border border-[#c9dfd0]">
-                            LIVE RESEARCH
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm font-serif font-bold text-[#14233c] line-clamp-1">
-                        {brief.topic}
-                      </div>
-                    </div>
-                  </div>
+              {/* Perplexity Styled Tabs Bar */}
+              <div className="border-b border-[#e5e7eb] bg-white rounded-2xl p-1.5 shadow-2xs">
+                <nav className="flex space-x-1 sm:space-x-2 overflow-x-auto text-xs">
+                  <button
+                    onClick={() => setActiveTab('brief')}
+                    className={`py-2 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+                      activeTab === 'brief'
+                        ? 'bg-[#20808d] text-white font-semibold shadow-xs'
+                        : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Academic Brief</span>
+                  </button>
 
                   <button
-                    onClick={() => setShowQueryForm(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#182c4a] hover:text-[#0f1d33] bg-[#f4ece0] hover:bg-[#eae0d1] border border-[#d8cfbe] rounded-lg transition-colors self-start sm:self-auto cursor-pointer"
+                    onClick={() => setActiveTab('claims')}
+                    className={`py-2 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+                      activeTab === 'claims'
+                        ? 'bg-[#20808d] text-white font-semibold shadow-xs'
+                        : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
+                    }`}
                   >
-                    <Search className="w-3.5 h-3.5 text-[#5e6c7e]" />
-                    <span>Change Topic</span>
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Claim Verification</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                        activeTab === 'claims'
+                          ? 'bg-white/20 text-white'
+                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                      }`}
+                    >
+                      {brief.claims.length}
+                    </span>
                   </button>
-                </div>
+
+                  <button
+                    onClick={() => setActiveTab('sources')}
+                    className={`py-2 px-3.5 rounded-xl font-medium flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+                      activeTab === 'sources'
+                        ? 'bg-[#20808d] text-white font-semibold shadow-xs'
+                        : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
+                    }`}
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>Sources & Citations</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                        activeTab === 'sources'
+                          ? 'bg-white/20 text-white'
+                          : 'bg-[#f3f4f6] text-[#6b7280]'
+                      }`}
+                    >
+                      {brief.sources.length}
+                    </span>
+                  </button>
+                </nav>
               </div>
-            )}
 
-            {/* Editorial Summary & Verification Checks */}
-            <MetricsBar
-              metrics={brief.metrics}
-              onFilterStatus={(status) => {
-                setActiveStatusFilter(status);
-                setActiveTab('claims');
-              }}
-              activeStatusFilter={activeStatusFilter}
-            />
+              {/* Active Tab Panel */}
+              <div className="transition-all">
+                {activeTab === 'brief' && (
+                  <BriefViewer
+                    brief={brief}
+                    onOpenSourceModal={(src) => setSelectedSourceModal(src)}
+                    onSelectTab={(tab) => setActiveTab(tab as any)}
+                  />
+                )}
 
-            {/* Navigation Tabs */}
-            <div className="border-b border-[#e5ddcb] bg-[#fffdf9] rounded-t-xl px-4 sm:px-6 pt-2">
-              <nav className="flex space-x-2 sm:space-x-4 overflow-x-auto">
-                <button
-                  onClick={() => setActiveTab('brief')}
-                  className={`py-3 px-3 text-xs sm:text-sm font-medium border-b-2 flex items-center gap-2 transition-all whitespace-nowrap ${
-                    activeTab === 'brief'
-                      ? 'border-[#7f1d2a] text-[#14233c] font-bold'
-                      : 'border-transparent text-[#5e6978] hover:text-[#14233c]'
-                  }`}
-                >
-                  <BookOpen className={`w-4 h-4 ${activeTab === 'brief' ? 'text-[#7f1d2a]' : 'text-[#7a8698]'}`} />
-                  <span>Academic Brief</span>
-                </button>
+                {activeTab === 'claims' && (
+                  <ClaimsTable
+                    claims={brief.claims}
+                    sources={brief.sources}
+                    onOpenSourceModal={(src) => setSelectedSourceModal(src)}
+                    selectedFilter={activeStatusFilter}
+                    onFilterChange={(newFilter) => setActiveStatusFilter(newFilter)}
+                  />
+                )}
 
-                <button
-                  onClick={() => setActiveTab('claims')}
-                  className={`py-3 px-3 text-xs sm:text-sm font-medium border-b-2 flex items-center gap-2 transition-all whitespace-nowrap ${
-                    activeTab === 'claims'
-                      ? 'border-[#7f1d2a] text-[#14233c] font-bold'
-                      : 'border-transparent text-[#5e6978] hover:text-[#14233c]'
-                  }`}
-                >
-                  <CheckCircle2 className={`w-4 h-4 ${activeTab === 'claims' ? 'text-[#7f1d2a]' : 'text-[#7a8698]'}`} />
-                  <span>Claim Verification</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[#fcf2f4] text-[#7f1d2a] font-medium border border-[#f0cdd4]">
-                    {brief.claims.length}
-                  </span>
-                </button>
+                {activeTab === 'sources' && (
+                  <SourcesList
+                    sources={brief.sources}
+                    references={brief.references}
+                    onOpenSourceModal={(src) => setSelectedSourceModal(src)}
+                  />
+                )}
+              </div>
+            </section>
+          )}
+        </main>
 
-                <button
-                  onClick={() => setActiveTab('sources')}
-                  className={`py-3 px-3 text-xs sm:text-sm font-medium border-b-2 flex items-center gap-2 transition-all whitespace-nowrap ${
-                    activeTab === 'sources'
-                      ? 'border-[#7f1d2a] text-[#14233c] font-bold'
-                      : 'border-transparent text-[#5e6978] hover:text-[#14233c]'
-                  }`}
-                >
-                  <Globe className={`w-4 h-4 ${activeTab === 'sources' ? 'text-[#7f1d2a]' : 'text-[#7a8698]'}`} />
-                  <span>Sources & Citations</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[#fcf2f4] text-[#7f1d2a] font-medium border border-[#f0cdd4]">
-                    {brief.sources.length}
-                  </span>
-                </button>
-              </nav>
-            </div>
-
-            {/* Tab Panels */}
-            <div className="transition-all">
-              {activeTab === 'brief' && (
-                <BriefViewer
-                  brief={brief}
-                  onOpenSourceModal={(src) => setSelectedSourceModal(src)}
-                  onSelectTab={(tab) => setActiveTab(tab as any)}
-                />
-              )}
-
-              {activeTab === 'claims' && (
-                <ClaimsTable
-                  claims={brief.claims}
-                  sources={brief.sources}
-                  onOpenSourceModal={(src) => setSelectedSourceModal(src)}
-                  selectedFilter={activeStatusFilter}
-                  onFilterChange={(newFilter) => setActiveStatusFilter(newFilter)}
-                />
-              )}
-
-              {activeTab === 'sources' && (
-                <SourcesList
-                  sources={brief.sources}
-                  references={brief.references}
-                  onOpenSourceModal={(src) => setSelectedSourceModal(src)}
-                />
-              )}
-            </div>
-          </section>
-        )}
-      </main>
+        {/* Clean Perplexity Footer */}
+        <footer className="border-t border-[#e5e7eb] bg-[#fbfbfb] py-6 mt-12 print:hidden text-center text-xs text-[#9ca3af]">
+          <div className="w-full px-4">
+            <p>Verified Academic Brief Generator • Powered by Gemini 2.5 Grounded Search • Zero-Fabrication Guarantee</p>
+          </div>
+        </footer>
+      </div>
 
       {/* Source Detail Modal */}
       <SourceDetailModal
@@ -415,13 +454,6 @@ export default function App() {
         isOpen={showEvaluationsModal}
         onClose={() => setShowEvaluationsModal(false)}
       />
-
-      {/* Simple Editorial Footer */}
-      <footer className="border-t border-[#e5ddcb] bg-[#f8f4ec] py-6 mt-12 print:hidden text-center text-xs text-[#636f7e]">
-        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16">
-          <p>Verified Academic Brief Generator — Evidence-based synthesis with traceable citations</p>
-        </div>
-      </footer>
     </div>
   );
 }

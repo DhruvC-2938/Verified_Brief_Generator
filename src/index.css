@@ -5,36 +5,36 @@
     overflow-x: hidden;
     max-width: 100vw;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #2b3543;
-    background-color: #f8f4ec;
+    color: #191a1a;
+    background-color: #fbfbfb;
   }
 }
 
 .font-serif {
-  font-family: 'Newsreader', 'Times New Roman', Georgia, serif;
+  font-family: 'Newsreader', Georgia, serif;
 }
 
 .font-mono {
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
-/* Warm Editorial Scrollbar */
+/* Perplexity Light Minimal Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1ede2;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d4cbba;
-  border-radius: 4px;
+  background: #e2e8f0;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #b9ad99;
+  background: #cbd5e1;
 }
 
-/* Shimmer skeleton animation */
+/* Perplexity Shimmer skeleton animation */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -45,9 +45,28 @@
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #ede7db 25%, #f5efe4 50%, #ede7db 75%);
+  background: linear-gradient(90deg, #f1f5f9 25%, #f8fafc 50%, #f1f5f9 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.8s infinite ease-in-out;
+  animation: shimmer 1.6s infinite ease-in-out;
+}
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, footer, nav, button, select, input, aside {
+    display: none !important;
+  }
+  article {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
 }
 
 @media print {

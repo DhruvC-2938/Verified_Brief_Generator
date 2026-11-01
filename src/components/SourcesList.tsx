@@ -33,7 +33,6 @@ export const SourcesList: React.FC<SourcesListProps> = ({
   const [copiedBatch, setCopiedBatch] = useState(false);
   const [cardFormats, setCardFormats] = useState<Record<string, CitationFormat>>({});
 
-  // Helper to format academic citations in multiple scholarly conventions
   const formatCitation = (src: SourceItem, format: CitationFormat): string => {
     const cleanUrl = src.url.startsWith('http') ? src.url : `https://${src.domain}`;
     const yearMatch = src.publishedDate.match(/\d{4}/);
@@ -42,17 +41,14 @@ export const SourcesList: React.FC<SourcesListProps> = ({
 
     switch (format) {
       case 'APA': {
-        // APA 7th Edition: Author/Publisher. (Year or n.d.). Title. URL
         const datePart = year ? `(${year})` : '(n.d.)';
         return `${src.publisher}. ${datePart}. ${src.title}. Retrieved from ${cleanUrl}`;
       }
       case 'MLA': {
-        // MLA 9th Edition: Publisher. "Title." Domain, Date, URL.
         const datePart = isDateListed ? `${src.publishedDate}, ` : '';
         return `${src.publisher}. "${src.title}." ${src.domain}, ${datePart}${cleanUrl}.`;
       }
       case 'Chicago': {
-        // Chicago 17th Edition: Publisher. "Title." Accessed [Date]. URL.
         const datePart = year ? `${year}. ` : '';
         return `${src.publisher}. "${src.title}." ${datePart}${cleanUrl}.`;
       }
@@ -112,24 +108,24 @@ export const SourcesList: React.FC<SourcesListProps> = ({
   });
 
   return (
-    <div className="space-y-6">
-      {/* Top Filter and Search Bar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3.5 bg-[#fffdf9] p-3 rounded-2xl border border-[#e5ddcb] shadow-2xs">
+    <div className="space-y-6 font-sans">
+      {/* Top Filter and Search Bar (Perplexity Style) */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#e5e7eb] shadow-xs">
         {/* Category Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 text-xs font-sans">
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs">
           {[
             { id: 'all', label: 'All Sources', count: sources.length },
             { id: 'research_paper', label: 'Academic Papers', count: sources.filter((s) => s.sourceType === 'Research Paper').length },
             { id: 'government', label: 'Government', count: sources.filter((s) => s.sourceType === 'Government').length },
-            { id: 'official_report', label: 'Reports', count: sources.filter((s) => s.sourceType === 'Official Report').length },
+            { id: 'official_report', label: 'Official Reports', count: sources.filter((s) => s.sourceType === 'Official Report').length },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setSelectedType(tab.id)}
               className={`px-3 py-1.5 font-medium rounded-xl whitespace-nowrap transition-all cursor-pointer ${
                 selectedType === tab.id
-                  ? 'bg-[#14233c] text-white shadow-xs font-semibold'
-                  : 'text-[#5d6778] hover:text-[#14233c] hover:bg-[#f3ece0]'
+                  ? 'bg-[#20808d] text-white font-semibold shadow-xs'
+                  : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
               }`}
             >
               <span>{tab.label}</span>
@@ -142,31 +138,31 @@ export const SourcesList: React.FC<SourcesListProps> = ({
 
         {/* Search & Bulk Export */}
         <div className="flex items-center gap-2">
-          <div className="relative flex-1 md:w-72">
-            <Search className="w-3.5 h-3.5 text-[#7c8796] absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="relative flex-1 md:w-64">
+            <Search className="w-3.5 h-3.5 text-[#9ca3af] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Filter by title, domain, publisher..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#fbf8f2] rounded-xl border border-[#ded5c2] focus:outline-none focus:border-[#14233c] focus:bg-white font-sans text-[#1a2536] placeholder-[#8d98a6]"
+              placeholder="Search references..."
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#f9fafb] rounded-xl border border-[#e5e7eb] focus:outline-none focus:border-[#20808d] focus:bg-white text-[#111827] placeholder-[#9ca3af]"
             />
           </div>
 
           <button
             onClick={handleCopyAllCitations}
             disabled={filteredSources.length === 0}
-            title="Copy all visible references formatted in APA"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-[#f3ede1] hover:bg-[#eae2d3] text-[#14233c] border border-[#d8cfbe] transition-colors whitespace-nowrap cursor-pointer shrink-0 disabled:opacity-50"
+            title="Copy all references formatted in APA"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#f9fafb] hover:bg-[#f3f4f6] text-[#374151] border border-[#e5e7eb] transition-colors whitespace-nowrap cursor-pointer shrink-0 disabled:opacity-50"
           >
             {copiedBatch ? (
               <>
-                <Check className="w-3.5 h-3.5 text-[#1b4e2c]" />
-                <span className="text-[#1b4e2c] font-semibold">All Copied</span>
+                <Check className="w-3.5 h-3.5 text-[#10b981]" />
+                <span className="text-[#10b981]">All Copied</span>
               </>
             ) : (
               <>
-                <Share2 className="w-3.5 h-3.5 text-[#5e6b7c]" />
+                <Share2 className="w-3.5 h-3.5 text-[#6b7280]" />
                 <span>Copy All (APA)</span>
               </>
             )}
@@ -174,8 +170,8 @@ export const SourcesList: React.FC<SourcesListProps> = ({
         </div>
       </div>
 
-      {/* Sources Grid - Clean Academic Architecture */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      {/* Sources Grid in Perplexity Cards */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {filteredSources.map((source) => {
           const currentFormat = cardFormats[source.id] || 'APA';
           const citationText = formatCitation(source, currentFormat);
@@ -184,35 +180,35 @@ export const SourcesList: React.FC<SourcesListProps> = ({
           return (
             <article
               key={source.id}
-              className="p-5 sm:p-6 rounded-2xl bg-[#fffdf9] border border-[#e5ddcb] shadow-xs flex flex-col justify-between gap-4.5 hover:border-[#14233c]/35 transition-all group"
+              className="p-5 rounded-2xl bg-white border border-[#e5e7eb] shadow-xs flex flex-col justify-between gap-4 hover:border-[#20808d] transition-all group"
             >
-              {/* Card Header: Source ID, Domain, Credibility Pill */}
-              <div className="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-[#eee7da]">
+              {/* Card Header: Source ID, Domain, Credibility */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#f3f4f6]">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-[#7f1d2a] bg-[#fcf2f4] border border-[#f0cdd4] px-2.5 py-0.5 rounded-md">
+                  <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] border border-[#bce2e6] px-2 py-0.5 rounded-md">
                     [{source.id}]
                   </span>
-                  <span className="text-xs font-medium text-[#2d3a4f] bg-[#f5efe3] px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-medium text-[#4b5563] bg-[#f3f4f6] px-2 py-0.5 rounded-md">
                     {source.sourceType}
                   </span>
                   <a
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-[#5e6978] hover:text-[#14233c] hover:underline font-mono"
+                    className="inline-flex items-center gap-1 text-xs text-[#6b7280] hover:text-[#20808d] hover:underline font-mono"
                   >
-                    <Globe className="w-3 h-3 text-[#7b8798]" />
+                    <Globe className="w-3 h-3 text-[#9ca3af]" />
                     <span>{source.domain}</span>
                   </a>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <div
-                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium font-sans border"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
                     style={{
-                      backgroundColor: source.credibilityScore >= 80 ? '#eef7f0' : '#f7f4ed',
-                      borderColor: source.credibilityScore >= 80 ? '#c9e8d1' : '#e0d8c7',
-                      color: source.credibilityScore >= 80 ? '#1b4e2c' : '#495565',
+                      backgroundColor: source.credibilityScore >= 80 ? '#ecfdf5' : '#f9fafb',
+                      borderColor: source.credibilityScore >= 80 ? '#a7f3d0' : '#e5e7eb',
+                      color: source.credibilityScore >= 80 ? '#047857' : '#4b5563',
                     }}
                   >
                     <ShieldCheck className="w-3 h-3" />
@@ -221,64 +217,64 @@ export const SourcesList: React.FC<SourcesListProps> = ({
                 </div>
               </div>
 
-              {/* Title & Publisher Line */}
-              <div className="space-y-2">
-                <h4 className="text-base sm:text-lg font-serif font-bold text-[#14233c] leading-snug break-words">
+              {/* Title & Publisher */}
+              <div className="space-y-1.5">
+                <h4 className="text-base font-semibold text-[#111827] leading-snug break-words">
                   <a
                     href={source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-[#7f1d2a] transition-colors"
+                    className="hover:text-[#20808d] transition-colors"
                   >
                     {source.title}
                   </a>
                 </h4>
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#5e6978] font-sans">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#6b7280]">
                   <span className="inline-flex items-center gap-1.5">
-                    <Building className="w-3.5 h-3.5 text-[#7b8798]" />
-                    <span>Publisher: <strong className="text-[#14233c] font-semibold">{source.publisher}</strong></span>
+                    <Building className="w-3.5 h-3.5 text-[#9ca3af]" />
+                    <span>Publisher: <strong className="text-[#111827] font-medium">{source.publisher}</strong></span>
                   </span>
 
                   <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-[#7b8798]" />
+                    <Calendar className="w-3.5 h-3.5 text-[#9ca3af]" />
                     <span>
                       {isDateKnown ? (
-                        <>Published: <strong className="text-[#14233c] font-semibold">{source.publishedDate}</strong></>
+                        <>Published: <strong className="text-[#111827] font-medium">{source.publishedDate}</strong></>
                       ) : (
-                        <span className="italic text-[#798595]">Date unlisted (n.d.)</span>
+                        <span className="italic text-[#9ca3af]">Date unlisted (n.d.)</span>
                       )}
                     </span>
                   </span>
                 </div>
               </div>
 
-              {/* Verbatim Retrieved Excerpt (Authentic Scholarly Pull-Quote) */}
+              {/* Verbatim Retrieved Excerpt (Perplexity Pull-Quote) */}
               {source.excerpt && (
-                <div className="relative pl-3.5 border-l-2 border-[#14233c]/30 py-0.5 space-y-1">
-                  <div className="flex items-center gap-1.5 text-[11px] font-sans font-semibold text-[#5e6978] uppercase tracking-wider">
-                    <Quote className="w-3 h-3 text-[#14233c]" />
+                <div className="relative pl-3.5 border-l-2 border-[#20808d]/30 py-0.5 space-y-1">
+                  <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#6b7280] uppercase tracking-wider">
+                    <Quote className="w-3 h-3 text-[#20808d]" />
                     <span>Retrieved Empirical Evidence</span>
                   </div>
-                  <p className="text-xs sm:text-sm font-serif italic text-[#253245] leading-relaxed break-words [overflow-wrap:anywhere]">
+                  <p className="text-xs sm:text-sm text-[#374151] italic leading-relaxed break-words [overflow-wrap:anywhere]">
                     "{source.excerpt}"
                   </p>
                 </div>
               )}
 
-              {/* Professional Citation Box (Replaces the clunky APA box) */}
-              <div className="p-3.5 rounded-xl bg-[#faf7f0] border border-[#e8dfcf] space-y-2.5">
+              {/* Multi-Format Citation Drawer */}
+              <div className="p-3.5 rounded-xl bg-[#f9fafb] border border-[#e5e7eb] space-y-2.5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   {/* Scholarly Format Tabs */}
-                  <div className="flex items-center gap-1 bg-[#ede4d3] p-0.5 rounded-lg text-[11px] font-sans font-medium">
+                  <div className="flex items-center gap-1 bg-[#f3f4f6] p-0.5 rounded-lg text-[11px] font-medium">
                     {(['APA', 'MLA', 'Chicago', 'BibTeX'] as CitationFormat[]).map((fmt) => (
                       <button
                         key={fmt}
                         onClick={() => setFormatForCard(source.id, fmt)}
                         className={`px-2 py-0.5 rounded-md transition-all cursor-pointer ${
                           currentFormat === fmt
-                            ? 'bg-[#ffffff] text-[#14233c] font-bold shadow-2xs'
-                            : 'text-[#647082] hover:text-[#14233c]'
+                            ? 'bg-white text-[#111827] font-bold shadow-2xs'
+                            : 'text-[#6b7280] hover:text-[#111827]'
                         }`}
                       >
                         {fmt}
@@ -286,20 +282,20 @@ export const SourcesList: React.FC<SourcesListProps> = ({
                     ))}
                   </div>
 
-                  {/* Copy Button with Smooth Micro-Interaction */}
+                  {/* Copy Button */}
                   <button
                     type="button"
                     onClick={() => handleCopy(source.id, citationText)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-[#14233c] bg-[#ffffff] hover:bg-[#f5efe3] border border-[#d8cfbe] rounded-lg transition-colors shadow-2xs cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-[#111827] bg-white hover:bg-[#f3f4f6] border border-[#e5e7eb] rounded-lg transition-colors shadow-2xs cursor-pointer"
                   >
                     {copiedId === source.id ? (
                       <>
-                        <Check className="w-3 h-3 text-[#1b4e2c]" />
-                        <span className="text-[#1b4e2c] font-semibold">Copied</span>
+                        <Check className="w-3 h-3 text-[#10b981]" />
+                        <span className="text-[#10b981] font-semibold">Copied</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-3 h-3 text-[#5e6c7d]" />
+                        <Copy className="w-3 h-3 text-[#6b7280]" />
                         <span>Copy {currentFormat}</span>
                       </>
                     )}
@@ -308,16 +304,16 @@ export const SourcesList: React.FC<SourcesListProps> = ({
 
                 {/* Formatted Citation Content */}
                 {currentFormat === 'BibTeX' ? (
-                  <pre className="p-2.5 rounded-lg bg-[#f3ede1] border border-[#ded5c2] font-mono text-[11px] text-[#14233c] overflow-x-auto leading-relaxed select-all">
+                  <pre className="p-2.5 rounded-lg bg-white border border-[#e5e7eb] font-mono text-[11px] text-[#111827] overflow-x-auto leading-relaxed select-all">
                     {citationText}
                   </pre>
                 ) : (
-                  <p className="text-xs sm:text-sm font-serif text-[#28323f] leading-relaxed break-words [overflow-wrap:anywhere] pl-3 border-l-2 border-[#14233c]/20">
-                    <span className="font-semibold text-[#14233c]">{source.publisher}</span>.{' '}
+                  <p className="text-xs text-[#374151] leading-relaxed break-words [overflow-wrap:anywhere] pl-3 border-l-2 border-[#20808d]/20">
+                    <span className="font-semibold text-[#111827]">{source.publisher}</span>.{' '}
                     <span>{source.publishedDate && source.publishedDate !== 'Unknown' ? `(${source.publishedDate}).` : '(n.d.).'}</span>{' '}
                     <em className="italic">{source.title}</em>.{' '}
-                    <span className="text-[#596677] text-xs">Retrieved from </span>
-                    <span className="text-[#14233c] text-xs break-all underline-offset-2 hover:underline">
+                    <span className="text-[#6b7280] text-xs">Retrieved from </span>
+                    <span className="text-[#20808d] text-xs break-all underline-offset-2 hover:underline">
                       {source.domain}
                     </span>
                   </p>
@@ -329,17 +325,17 @@ export const SourcesList: React.FC<SourcesListProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenSourceModal?.(source)}
-                  className="inline-flex items-center gap-1 text-[#7f1d2a] hover:text-[#531019] font-medium underline-offset-4 hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-[#20808d] hover:text-[#186974] font-medium underline-offset-4 hover:underline cursor-pointer"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>View Evidence Audit</span>
+                  <span>Audit Evidence</span>
                 </button>
 
                 <a
                   href={source.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#eef4fa] hover:bg-[#e0ebf5] text-[#152e4d] font-semibold transition-colors border border-[#c9d9e8]"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#f9fafb] hover:bg-[#f3f4f6] text-[#111827] font-semibold transition-colors border border-[#e5e7eb]"
                 >
                   <span>Open Primary Source</span>
                   <ExternalLink className="w-3 h-3" />
@@ -350,8 +346,8 @@ export const SourcesList: React.FC<SourcesListProps> = ({
         })}
 
         {filteredSources.length === 0 && (
-          <div className="col-span-full text-center py-12 text-xs text-[#717b88] bg-[#fbf8f0] rounded-2xl border border-[#e5ddcb] space-y-2">
-            <Search className="w-6 h-6 text-[#99a5b5] mx-auto" />
+          <div className="col-span-full text-center py-12 text-xs text-[#6b7280] bg-white rounded-2xl border border-[#e5e7eb] space-y-2">
+            <Search className="w-6 h-6 text-[#9ca3af] mx-auto" />
             <p className="font-medium">No references match your current search or filter criteria.</p>
           </div>
         )}

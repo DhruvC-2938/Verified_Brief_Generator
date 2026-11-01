@@ -6,6 +6,8 @@ import {
   HelpCircle,
   Search,
   ExternalLink,
+  ShieldCheck,
+  Quote,
 } from 'lucide-react';
 import { ClaimVerification, SourceItem, VerificationStatus } from '../types/index.ts';
 
@@ -38,7 +40,6 @@ export const ClaimsTable: React.FC<ClaimsTableProps> = ({
   const [internalFilter, setInternalFilter] = useState<string>(selectedFilter || initialFilter);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Keep internal filter synchronized when parent (e.g. top MetricsBar) changes filter
   useEffect(() => {
     if (selectedFilter !== undefined) {
       setInternalFilter(selectedFilter);
@@ -77,12 +78,14 @@ export const ClaimsTable: React.FC<ClaimsTableProps> = ({
   const supportedCount = claims.filter((c) => normalizeStatus(c.status) === 'supported').length;
   const partialCount = claims.filter((c) => normalizeStatus(c.status) === 'partially_supported').length;
   const contradictedCount = claims.filter((c) => normalizeStatus(c.status) === 'contradicted').length;
+  const unverifiedCount = claims.filter((c) => normalizeStatus(c.status) === 'unverified').length;
 
   const filterTabs = [
-    { id: 'all', label: 'All', count: claims.length },
+    { id: 'all', label: 'All Claims', count: claims.length },
     { id: 'supported', label: 'Supported', count: supportedCount },
     { id: 'partially_supported', label: 'Partial', count: partialCount },
     { id: 'contradicted', label: 'Contradicted', count: contradictedCount },
+    { id: 'unverified', label: 'Unverified', count: unverifiedCount },
   ];
 
   const renderStatusBadge = (status: VerificationStatus, confidenceScore: number) => {
@@ -91,158 +94,154 @@ export const ClaimsTable: React.FC<ClaimsTableProps> = ({
       case 'supported':
         return (
           <div className="flex flex-col items-start gap-0.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans font-medium text-[#1c4e2f] bg-[#edf6f0] border border-[#c9dfd0] rounded-md">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#2b6d43]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#047857] bg-[#ecfdf5] border border-[#a7f3d0] rounded-md">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981]" />
               Supported
             </span>
-            <span className="text-[10px] text-[#6b7582] font-sans pl-1">{confidenceScore}% match</span>
+            <span className="text-[10px] text-[#6b7280] font-mono pl-1">{confidenceScore}% match</span>
           </div>
         );
       case 'partially_supported':
         return (
           <div className="flex flex-col items-start gap-0.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans font-medium text-[#7c511b] bg-[#fdf6ea] border border-[#ebd7b0] rounded-md">
-              <AlertTriangle className="w-3.5 h-3.5 text-[#9c6523]" />
-              Partially Supported
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#b45309] bg-[#fffbeb] border border-[#fde68a] rounded-md">
+              <AlertTriangle className="w-3.5 h-3.5 text-[#f59e0b]" />
+              Partial
             </span>
-            <span className="text-[10px] text-[#6b7582] font-sans pl-1">{confidenceScore}% match</span>
+            <span className="text-[10px] text-[#6b7280] font-mono pl-1">{confidenceScore}% match</span>
           </div>
         );
       case 'contradicted':
         return (
           <div className="flex flex-col items-start gap-0.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans font-medium text-[#7f1d2a] bg-[#fdf1f2] border border-[#f5d0d6] rounded-md">
-              <XCircle className="w-3.5 h-3.5 text-[#9e1c2d]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#b91c1c] bg-[#fef2f2] border border-[#fecaca] rounded-md">
+              <XCircle className="w-3.5 h-3.5 text-[#ef4444]" />
               Contradicted
             </span>
-            <span className="text-[10px] text-[#8e2936] font-sans pl-1 font-medium">Refuted by source</span>
+            <span className="text-[10px] text-[#6b7280] font-mono pl-1">{confidenceScore}% confidence</span>
           </div>
         );
-      case 'unverified':
       default:
         return (
           <div className="flex flex-col items-start gap-0.5">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-sans font-medium text-[#505c6d] bg-[#f2ecdf] border border-[#ded4c2] rounded-md">
-              <HelpCircle className="w-3.5 h-3.5 text-[#737f90]" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-[#4b5563] bg-[#f3f4f6] border border-[#e5e7eb] rounded-md">
+              <HelpCircle className="w-3.5 h-3.5 text-[#6b7280]" />
               Unverified
             </span>
-            <span className="text-[10px] text-[#6b7582] font-sans pl-1">Inconclusive</span>
+            <span className="text-[10px] text-[#6b7280] font-mono pl-1">{confidenceScore}% match</span>
           </div>
         );
     }
   };
 
   return (
-    <div className="space-y-4">
-      {/* Calm Notice */}
-      <div className="p-4 bg-[#f8f3e8] border border-[#e7ddca] rounded-xl text-xs text-[#2b3a4f] leading-relaxed font-sans">
-        <strong className="text-[#14233c]">Claim Verification:</strong> Every proposition stated in the brief is audited against source excerpts. Claims are designated <span className="text-[#1c4e2f] font-semibold">Supported</span> when the empirical text directly corroborates the assertion. Where evidence disputes an assertion, it is noted as <span className="text-[#7f1d2a] font-semibold">Contradicted</span>.
-      </div>
-
-      {/* Filter and Search */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        {/* Soft Warm Editorial filter pills */}
-        <div className="flex items-center gap-1 p-1 bg-[#f1ebde] rounded-xl overflow-x-auto text-xs">
-          {filterTabs.map((tab) => {
-            const isSelected =
-              tab.id === 'all'
-                ? activeFilter === 'all' || !activeFilter
-                : normalizeStatus(activeFilter) === normalizeStatus(tab.id);
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => handleFilterSelect(tab.id)}
-                className={`px-3 py-1 font-medium rounded-lg whitespace-nowrap transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-white text-[#14233c] shadow-2xs font-semibold'
-                    : 'text-[#5d6778] hover:text-[#14233c]'
-                }`}
-              >
-                <span>{tab.label}</span>
-                <span className="ml-1 text-[11px] opacity-75">({tab.count})</span>
-              </button>
-            );
-          })}
+    <div className="space-y-5 font-sans">
+      {/* Top Filter and Search Bar (Perplexity Style) */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-[#e5e7eb] shadow-xs">
+        {/* Soft Status Filter Tabs */}
+        <div className="flex items-center gap-1 overflow-x-auto text-xs">
+          {filterTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleFilterSelect(tab.id)}
+              className={`px-3 py-1.5 font-medium rounded-xl whitespace-nowrap transition-all cursor-pointer ${
+                normalizeStatus(activeFilter) === normalizeStatus(tab.id)
+                  ? 'bg-[#20808d] text-white font-semibold shadow-xs'
+                  : 'text-[#4b5563] hover:text-[#111827] hover:bg-[#f3f4f6]'
+              }`}
+            >
+              <span>{tab.label}</span>
+              <span className={`ml-1 text-[11px] ${normalizeStatus(activeFilter) === normalizeStatus(tab.id) ? 'opacity-90' : 'opacity-60'}`}>
+                ({tab.count})
+              </span>
+            </button>
+          ))}
         </div>
 
-        {/* Search Input */}
-        <div className="relative w-full sm:w-80">
-          <Search className="w-3.5 h-3.5 text-[#7c8796] absolute left-3 top-1/2 -translate-y-1/2" />
+        {/* Search */}
+        <div className="relative w-full sm:w-64">
+          <Search className="w-3.5 h-3.5 text-[#9ca3af] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search verified claims..."
-            className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#fffdf9] rounded-lg border border-[#ded5c2] focus:outline-none focus:border-[#1b355a] font-sans text-[#1a2536]"
+            placeholder="Search claims or excerpts..."
+            className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#f9fafb] rounded-xl border border-[#e5e7eb] focus:outline-none focus:border-[#20808d] focus:bg-white text-[#111827] placeholder-[#9ca3af]"
           />
         </div>
       </div>
 
-      {/* Claims List - Spacious Grid on Full Width */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      {/* Claims List */}
+      <div className="space-y-3.5">
         {filteredClaims.map((claim) => (
           <div
             key={claim.id}
-            className="p-5 rounded-2xl bg-[#fffdf9] border border-[#e5ddcb] shadow-xs flex flex-col justify-between gap-3 overflow-hidden max-w-full break-words hover:border-[#1b355a]/30 transition-colors"
+            className="p-5 rounded-2xl bg-white border border-[#e5e7eb] shadow-xs space-y-3 hover:border-[#20808d] transition-all"
           >
-            {/* Top row */}
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-1 overflow-hidden max-w-full">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-semibold text-[#7f1d2a] bg-[#fcf2f4] border border-[#f0cdd4] px-2 py-0.5 rounded">
-                    {claim.id}
-                  </span>
-                  <span className="text-[11px] text-[#6a7482] font-sans">
-                    Section: {claim.sectionRef || 'Findings'}
-                  </span>
-                </div>
-                <p className="text-sm font-serif font-bold text-[#14233c] leading-snug break-words">
-                  "{claim.claimText}"
-                </p>
+            {/* Header: ID, Section, Status */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#f3f4f6]">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-[#20808d] bg-[#e6f4f5] border border-[#bce2e6] px-2 py-0.5 rounded-md">
+                  [{claim.id}]
+                </span>
+                <span className="text-xs text-[#6b7280]">
+                  Section: <strong className="text-[#111827]">{claim.sectionRef}</strong>
+                </span>
               </div>
-              <div className="shrink-0">
-                {renderStatusBadge(claim.status, claim.confidenceScore)}
-              </div>
+
+              <div>{renderStatusBadge(claim.status, claim.confidenceScore)}</div>
             </div>
 
-            {/* Evidence excerpt comparison */}
-            <div className="p-3 bg-[#f8f3e8] rounded-xl border border-[#e7ddca] text-xs space-y-1.5 font-sans overflow-hidden break-words">
-              <div className="flex flex-wrap items-center justify-between gap-1 text-[#5e6978] text-[11px]">
-                <span className="font-semibold text-[#14233c]">Source Evidence:</span>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {claim.sourceIds.map((sid) => {
-                    const src = getSource(sid);
-                    return (
-                      <button
-                        key={sid}
-                        type="button"
-                        onClick={() => src && onOpenSourceModal?.(src)}
-                        className="inline-flex items-center gap-1 text-[11px] font-mono text-[#7f1d2a] hover:underline"
-                      >
-                        <span>[{sid}] {src?.publisher || 'Source'}</span>
-                        <ExternalLink className="w-2.5 h-2.5" />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <p className="text-[#2b3543] italic leading-relaxed break-words [overflow-wrap:anywhere]">
+            {/* Factual Claim Assertion */}
+            <div>
+              <h4 className="text-sm sm:text-base font-semibold text-[#111827] leading-snug">
+                "{claim.claimText}"
+              </h4>
+            </div>
+
+            {/* Verbatim Retrieved Excerpt Pull-Quote */}
+            <div className="p-3.5 rounded-xl bg-[#f9fafb] border-l-2 border-[#20808d]/30 border border-[#e5e7eb] text-xs space-y-1">
+              <span className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider block">
+                Retrieved Empirical Excerpt
+              </span>
+              <p className="text-[#374151] italic leading-relaxed">
                 "{claim.evidenceExcerpt}"
               </p>
             </div>
 
-            {/* Explanation rationale */}
-            <div className="text-xs text-[#525e6e] font-sans leading-relaxed break-words [overflow-wrap:anywhere]">
-              <span className="font-semibold text-[#14233c]">Rationale: </span>
-              {claim.rationale}
+            {/* Verification Rationale & Sources */}
+            <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div className="text-[#6b7280] text-xs flex-1">
+                <span>Rationale: </span>
+                <span className="text-[#374151] font-medium">{claim.rationale}</span>
+              </div>
+
+              {/* Source Link Chips */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] text-[#9ca3af]">Cited Sources:</span>
+                {claim.sourceIds.map((sid) => {
+                  const src = getSource(sid);
+                  return (
+                    <button
+                      key={sid}
+                      onClick={() => src && onOpenSourceModal?.(src)}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#e6f4f5] hover:bg-[#cbebee] text-[#20808d] border border-[#bce2e6] text-[11px] font-mono font-semibold transition-colors cursor-pointer"
+                      title={src ? `${src.publisher}: ${src.title}` : `Source ${sid}`}
+                    >
+                      <span>{sid}</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         ))}
 
         {filteredClaims.length === 0 && (
-          <div className="text-center py-8 text-xs text-[#717b88] bg-[#fbf8f0] rounded-xl border border-[#e5ddcb]">
-            No claims found matching this filter.
+          <div className="text-center py-12 text-xs text-[#6b7280] bg-white rounded-2xl border border-[#e5e7eb] space-y-2">
+            <Search className="w-6 h-6 text-[#9ca3af] mx-auto" />
+            <p className="font-medium">No factual claims match this filter or search query.</p>
           </div>
         )}
       </div>
