@@ -32,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
             {currentTopic && (
               <>
                 <span className="text-gray-300 hidden sm:inline">/</span>
-                <span className="text-xs font-medium text-[#4b5563] truncate max-w-xs sm:max-w-md">
+                <span className="text-xs font-medium text-[#4b5563] truncate max-w-sm md:max-w-xl lg:max-w-2xl">
                   {currentTopic}
                 </span>
               </>

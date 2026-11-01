@@ -216,8 +216,8 @@ export default function App() {
           onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         />
 
-        {/* Content Container */}
-        <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+        {/* Content Container - Full screen layout occupying entire available width */}
+        <main className="flex-1 w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 py-6 sm:py-8 space-y-6">
           {/* Error Notice */}
           {error && (
             <div className="p-4 rounded-2xl bg-[#fef2f2] border border-[#fecaca] text-xs sm:text-sm text-[#b91c1c] flex items-center justify-between gap-3 animate-in fade-in">

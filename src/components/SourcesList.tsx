@@ -171,7 +171,7 @@ export const SourcesList: React.FC<SourcesListProps> = ({
       </div>
 
       {/* Sources Grid in Perplexity Cards */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
         {filteredSources.map((source) => {
           const currentFormat = cardFormats[source.id] || 'APA';
           const citationText = formatCitation(source, currentFormat);

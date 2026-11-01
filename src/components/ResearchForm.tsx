@@ -54,7 +54,7 @@ export const ResearchForm: React.FC<ResearchFormProps> = ({ onSubmit, onSelectSa
   };
 
   return (
-    <div className="max-w-3xl mx-auto py-12 sm:py-20 px-4">
+    <div className="w-full max-w-4xl lg:max-w-5xl mx-auto py-10 sm:py-16 px-4">
       {/* Centered Perplexity Hero Title */}
       <div className="text-center mb-8 space-y-2.5">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e6f4f5] text-[#20808d] text-xs font-medium mb-1">
@@ -64,7 +64,7 @@ export const ResearchForm: React.FC<ResearchFormProps> = ({ onSubmit, onSelectSa
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#111827] tracking-tight font-sans">
           Where knowledge begins.
         </h1>
-        <p className="text-sm sm:text-base text-[#4b5563] max-w-xl mx-auto leading-relaxed">
+        <p className="text-sm sm:text-base text-[#4b5563] max-w-2xl mx-auto leading-relaxed">
           Search reputable academic papers, government registries, and verified literature to generate an authoritative brief.
         </p>
       </div>
