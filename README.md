@@ -1,6 +1,9 @@
 # Verified Academic Brief Generator
 
-An AI-powered academic research engine and epistemic verification dashboard built with React, Node.js, Tailwind CSS, and the Gemini API (using `gemini-3.8-flash` with Google Search Grounding).
+> **Live Deployment:** [https://verified-brief-generator.onrender.com/](https://verified-brief-generator.onrender.com/)  
+> **Source Repository:** [https://github.com/DhruvC-2938/Verified_Brief_Generator.git](https://github.com/DhruvC-2938/Verified_Brief_Generator.git)
+
+An AI-powered academic research engine and epistemic verification dashboard built with React, Node.js, Tailwind CSS, and the Gemini API with Google Search Grounding.
 
 Developed for college AI Tools and Prompt Engineering coursework, this system accepts any research inquiry, retrieves authoritative online sources (.gov, .edu, peer-reviewed journals, official reports, reputable news), synthesizes a structured academic brief with inline citations, and adversarially verifies every major factual assertion against verbatim retrieved source excerpts.
 
@@ -112,6 +115,14 @@ PORT=3000
 ---
 
 ## Deployment Instructions
+
+### Render (Live Production)
+- **Live URL**: [https://verified-brief-generator.onrender.com/](https://verified-brief-generator.onrender.com/)
+- **Build Command**: `npm install && npm run build`
+- **Start Command**: `npm start`
+- **Environment Variables**:
+  - `NODE_ENV`: `production`
+  - `GEMINI_API_KEY`: `your-gemini-api-key`
 
 ### Vercel / Netlify
 1. Connect repository.
