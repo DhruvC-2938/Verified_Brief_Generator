@@ -321,6 +321,9 @@ Respond with an authoritative, concise, objective scholarly answer based STRICTL
     const res = await generateWithRetry(ai, {
       model: WORKFLOW_MODEL,
       contents: prompt,
+      config: {
+        thinkingConfig: { thinkingBudget: 0 },
+      },
     });
     return res.text || 'Analysis completed based on the synthesized empirical brief.';
   } catch (err: any) {
@@ -376,6 +379,7 @@ Be factual, objective, and cite specific findings, numbers, dates, and organizat
         contents: discoveryPrompt,
         config: {
           tools: [{ googleSearch: {} }],
+          thinkingConfig: { thinkingBudget: 0 },
         },
       },
       (msg) => onProgress?.({ stage: 1, totalStages: 2, stageName: 'Source Grounding', message: msg })
@@ -531,6 +535,7 @@ Return ONLY raw JSON, with no markdown code fences or conversational text.`;
         contents: synthesisPrompt,
         config: {
           responseMimeType: 'application/json',
+          thinkingConfig: { thinkingBudget: 0 },
         },
       },
       (msg) => onProgress?.({ stage: 2, totalStages: 2, stageName: 'Brief Synthesis', message: msg })
